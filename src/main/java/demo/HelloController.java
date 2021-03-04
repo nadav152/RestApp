@@ -12,6 +12,7 @@ public class HelloController {
 			method = RequestMethod.GET,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public HelloBoundary hello(){
-		return new HelloBoundary("hello world");
+		Helper help = new Helper();
+		return new HelloBoundary("hello " + help.getTeamName());
 	}
 }
