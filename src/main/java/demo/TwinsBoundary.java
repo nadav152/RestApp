@@ -3,15 +3,15 @@ package demo;
 import java.util.Date;
 
 // JSON Demo: {"message":"hello"}
-public class HelloBoundary {
+public class TwinsBoundary {
 	private String message;
 	private Date currentTimestamp;
 	
-	public HelloBoundary() {
+	public TwinsBoundary() {
 		this.currentTimestamp = new Date();
 	}
 
-	public HelloBoundary(String message) {
+	public TwinsBoundary(String message) {
 		this();
 		this.message = message;
 	}
