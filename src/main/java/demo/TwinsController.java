@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+// Save this file again
+
 @RestController
 public class TwinsController {
 	/* Users related API */
@@ -49,13 +51,60 @@ public class TwinsController {
 	@RequestMapping(
 			path="/twins/items/{userSpace}/{userEmail}",
 			method = RequestMethod.POST)
-	public void createItem (
+	public ItemBoundary createItem (ItemBoundary IDlessItem,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		//ItemBoundary items
-		System.err.println("All users from space " + userSpace + " have been deleted by " + userEmail);
+		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
+		IDlessItem.setItemID(new ItemID(userSpace, "123"));
+		return IDlessItem;
 	}
+	
+	@RequestMapping(
+			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
+			method = RequestMethod.PUT,
+			consumes = MediaType.APPLICATION_JSON_VALUE)
+	public void updateItem (ItemBoundary ib,
+			@PathVariable("userSpace") String userSpace,
+			@PathVariable("userEmail") String userEmail,
+			@PathVariable("itemSpace") String itemSpace,
+			@PathVariable("itemID") String itemID){
+		// STUB implementation
+		System.err.println("The item " + itemID + " from space " + itemSpace + " has been updated by " + userEmail + " from space " + userSpace);
+	}
+	
+	@RequestMapping(
+			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
+			method = RequestMethod.GET,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ItemBoundary retrieveItem (
+			@PathVariable("userSpace") String userSpace,
+			@PathVariable("userEmail") String userEmail,
+			@PathVariable("itemSpace") String itemSpace,
+			@PathVariable("itemID") String itemID){
+		// STUB implementation
+		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
+		ItemBoundary ib = new ItemBoundary(itemSpace, itemID, "food", "cheese", true, u);
+		return ib;
+	}
+	
+	@RequestMapping(
+			path="/twins/items/{userSpace}/{userEmail}",
+			method = RequestMethod.GET,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ItemBoundary[] retrieveAllItem (
+			@PathVariable("userSpace") String userSpace,
+			@PathVariable("userEmail") String userEmail){
+		// STUB implementation
+		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
+		ItemBoundary[] allItems = {new ItemBoundary("Pool", "124", "Attraction", "showers", true, u),
+									new ItemBoundary("Gym", "125", "Outfit", "Fins", true, u)};
+		return allItems;
+	}
+		
+	
+	
+	
 	
 	/* Admin API */
 	@RequestMapping(
