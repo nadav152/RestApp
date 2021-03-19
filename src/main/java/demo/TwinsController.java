@@ -50,21 +50,22 @@ public class TwinsController {
 	/* Digital Items related API */
 	@RequestMapping(
 			path="/twins/items/{userSpace}/{userEmail}",
-			method = RequestMethod.POST)
-	public ItemBoundary createItem (ItemBoundary IDlessItem,
+			method = RequestMethod.POST,
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public ItemBoundary createItem (@RequestBody ItemBoundary IDlessItem,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
-		IDlessItem.setItemID(new ItemID(userSpace, "123"));
-		return IDlessItem;
+		ItemBoundary ib = new ItemBoundary("dairy", "123", IDlessItem);
+		return ib;
 	}
 	
 	@RequestMapping(
 			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
 			method = RequestMethod.PUT,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateItem (ItemBoundary ib,
+	public void updateItem (@RequestBody ItemBoundary ib,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
@@ -84,7 +85,7 @@ public class TwinsController {
 			@PathVariable("itemID") String itemID){
 		// STUB implementation
 		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
-		ItemBoundary ib = new ItemBoundary(itemSpace, itemID, "food", "cheese", true, u);
+		ItemBoundary ib = new ItemBoundary(itemSpace, itemID, "food", "cheese", true, u, new Location(32.2, 36.5));
 		return ib;
 	}
 	
@@ -97,8 +98,8 @@ public class TwinsController {
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
 		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
-		ItemBoundary[] allItems = {new ItemBoundary("Pool", "124", "Attraction", "showers", true, u),
-									new ItemBoundary("Gym", "125", "Outfit", "Fins", true, u)};
+		ItemBoundary[] allItems = {new ItemBoundary("Pool", "124", "Attraction", "showers", true, u, new Location(32.2, 36.5) ),
+									new ItemBoundary("Gym", "125", "Outfit", "Fins", true, u, new Location(32.2, 36.5))};
 		return allItems;
 	}
 		
@@ -160,8 +161,9 @@ public class TwinsController {
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
 		UserBoundary ub = new UserBoundary("Sector 12", "EfiRefaelo@gmail.com", "Member", "EfiRefaelo", "ER");
-		OperationBoundary ob1 = new OperationBoundary("Sector 12", "11", "operationType", "item", ub);
-		OperationBoundary ob2 = new OperationBoundary("Sector 12", "12", "operationType2", "item2", ub);
+		ItemBoundary ib = new ItemBoundary("Pool", "124", "Attraction", "showers", true, ub, new Location(32.2, 36.5));
+		OperationBoundary ob1 = new OperationBoundary("Sector 12", "11", "operationType", ib, ub);
+		OperationBoundary ob2 = new OperationBoundary("Sector 12", "12", "operationType2", ib, ub);
 		ob1.getOperationAttributes().put("key1", "table");
 		ob1.getOperationAttributes().put("key2", "desk");
 		ob2.getOperationAttributes().put("key1", "chair");

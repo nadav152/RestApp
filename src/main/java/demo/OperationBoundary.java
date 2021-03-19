@@ -7,7 +7,7 @@ import java.util.Map;
 public class OperationBoundary {
 	private OperationID operationID;
 	private String type;
-	private String item;			/// FIX ItemBoundary
+	private ItemBoundary item;			
 	private Date createdTimestamp;
 	private UserBoundary invokedBy;
 	private Map<String, String> operationAttributes;
@@ -20,7 +20,7 @@ public class OperationBoundary {
 
 	
 
-	public OperationBoundary(String space, String id, String type, String item, UserBoundary invokedBy) {
+	public OperationBoundary(String space, String id, String type, ItemBoundary item, UserBoundary invokedBy) {
 		this();
 		OperationID oID = new OperationID(space, id);
 		this.operationID = oID;
@@ -46,11 +46,11 @@ public class OperationBoundary {
 		this.type = type;
 	}
 
-	public String getItem() {
+	public ItemBoundary getItem() {
 		return item;
 	}
 
-	public void setItem(String item) {
+	public void setItem(ItemBoundary item) {
 		this.item = item;
 	}
 

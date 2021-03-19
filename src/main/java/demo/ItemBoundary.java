@@ -12,7 +12,7 @@ public class ItemBoundary {
 	private boolean active;
 	private Date createdTimestamp;
 	private UserBoundary createdBy;
-	private Double[] location;
+	private Location location;
 	private Map<String, String> itemAttributes;
 	
 	public ItemBoundary() {
@@ -20,16 +20,35 @@ public class ItemBoundary {
 		this.itemAttributes = new HashMap<>();
 	}
 	
-	public ItemBoundary(String space, String id, String type, String name, boolean active, UserBoundary createdBy) {
+	public ItemBoundary(String space, String id, String type, String name, boolean active, UserBoundary createdBy, Location location) {
 		this();
-		ItemID itemID = new ItemID(space, id);
-		this.itemID = itemID;
+		this.itemID = new ItemID(space, id);
 		this.type = type;
 		this.name = name;
 		this.active = active;
 		this.createdBy = createdBy;
+		this.location = location;
 	}
 	
+	public ItemBoundary(String space, String id, ItemBoundary IDlessItem) {
+		this();
+		this.itemID = new ItemID(space, id);
+		this.type = IDlessItem.getType();
+		System.out.println(IDlessItem.getType());
+		this.name = IDlessItem.getName();
+		this.active = IDlessItem.isActive();
+		this.createdBy = IDlessItem.getCreatedBy();
+		this.location = IDlessItem.getLocation();
+		this.createdTimestamp = IDlessItem.getCreatedTimestamp();
+	}
+	
+	@Override
+	public String toString() {
+		return "ItemBoundary [itemID=" + itemID + ", type=" + type + ", name=" + name + ", active=" + active
+				+ ", createdTimestamp=" + createdTimestamp + ", createdBy=" + createdBy + ", location=" + location
+				+ ", itemAttributes=" + itemAttributes + "]";
+	}
+
 	public ItemID getItemID() {
 		return itemID;
 	}
@@ -78,11 +97,11 @@ public class ItemBoundary {
 		this.createdBy = createdBy;
 	}
 
-	public Double[] getLocation() {
+	public Location getLocation() {
 		return location;
 	}
 
-	public void setLocation(Double[] location) {
+	public void setLocation(Location location) {
 		this.location = location;
 	}
 
