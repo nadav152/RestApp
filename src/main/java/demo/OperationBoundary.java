@@ -5,37 +5,43 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class OperationBoundary {
-	private OperationID operationID;
+	private OperationID operationId;
 	private String type;
-	private ItemBoundary item;			
+	private Item itemId;
 	private Date createdTimestamp;
-	private UserBoundary invokedBy;
+	private User invokedBy;
 	private Map<String, String> operationAttributes;
 
-	
 	public OperationBoundary() {
-		createdTimestamp = new Date();
+		this.createdTimestamp = new Date();
 		this.operationAttributes = new HashMap<>();
 	}
 
-	
-
-	public OperationBoundary(String space, String id, String type, ItemBoundary item, UserBoundary invokedBy) {
+	public OperationBoundary(String space, String id, String type, Item item, User invokedBy) {
 		this();
 		OperationID oID = new OperationID(space, id);
-		this.operationID = oID;
+		this.operationId = oID;
 		this.type = type;
-		this.item = item;
+		this.itemId = item;
 		this.invokedBy = invokedBy;
-		
-	}
-	
-	public OperationID getOperationID() {
-		return operationID;
 	}
 
-	public void setOperationID(OperationID oID) {
-		this.operationID = oID;
+	public OperationBoundary(String space, String id, OperationBoundary ob) {
+		this();
+		OperationID oID = new OperationID(space, id);
+		this.operationId = oID;
+		this.type = ob.getType();
+		this.itemId = ob.getItem();
+		this.invokedBy = ob.getInvokedBy();
+		this.createdTimestamp = ob.getCreatedTimestamp();
+	}
+
+	public OperationID getOperationId() {
+		return operationId;
+	}
+
+	public void setOperationId(OperationID operationId) {
+		this.operationId = operationId;
 	}
 
 	public String getType() {
@@ -46,12 +52,12 @@ public class OperationBoundary {
 		this.type = type;
 	}
 
-	public ItemBoundary getItem() {
-		return item;
+	public Item getItem() {
+		return itemId;
 	}
 
-	public void setItem(ItemBoundary item) {
-		this.item = item;
+	public void setItem(Item item) {
+		this.itemId = item;
 	}
 
 	public Date getCreatedTimestamp() {
@@ -62,22 +68,27 @@ public class OperationBoundary {
 		this.createdTimestamp = createdTimestamp;
 	}
 
-	public UserBoundary getInvokedBy() {
+	public User getInvokedBy() {
 		return invokedBy;
 	}
 
-	public void setInvokedBy(UserBoundary invokedBy) {
+	public void setInvokedBy(User invokedBy) {
 		this.invokedBy = invokedBy;
-	}
-	
-	public void setOperationAttributes(Map<String, String> operationAttributes) {
-		this.operationAttributes = operationAttributes;
 	}
 
 	public Map<String, String> getOperationAttributes() {
 		return operationAttributes;
 	}
 
-	
+	public void setOperationAttributes(Map<String, String> operationAttributes) {
+		this.operationAttributes = operationAttributes;
+	}
+
+	@Override
+	public String toString() {
+		return "OperationBoundary [operationId=" + operationId + ", type=" + type + ", item=" + itemId
+				+ ", createdTimestamp=" + createdTimestamp + ", invokedBy=" + invokedBy + ", operationAttributes="
+				+ operationAttributes + "]";
+	}
 
 }
