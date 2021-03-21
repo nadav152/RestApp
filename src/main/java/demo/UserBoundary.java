@@ -2,7 +2,7 @@ package demo;
 
 
 public class UserBoundary {
-	private UserID userID;
+	private UserId userID;
 	private String role;
 	private String username;
 	private String avatar;
@@ -14,17 +14,17 @@ public class UserBoundary {
 
 	public UserBoundary(String space, String email, String role, String username, String avatar) {
 		this();
-		this.userID = new UserID(space, email);
+		this.userID = new UserId(space, email);
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
 	}
 	
-	public UserID getUserID() {
+	public UserId getUserID() {
 		return userID;
 	}
 
-	public void setUserID(UserID userID) {
+	public void setUserID(UserId userID) {
 		this.userID = userID;
 	}
 

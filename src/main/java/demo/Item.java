@@ -1,10 +1,10 @@
 package demo;
 
 public class Item {
-	private ItemID itemId;
+	private ItemId itemId;
 
 	public Item() {
-			
+		this.itemId = new ItemId();
 	}
 	
 	public Item(String space, String id) {
@@ -13,11 +13,15 @@ public class Item {
 		this.itemId.setID(id);
 	}
 
-	public ItemID getItem() {
+	public ItemId getItemId() {
 		return itemId;
 	}
 
-	public void setItem(ItemID item) {
-		this.itemId = item;
+	public void setItemId(ItemId itemId) {
+		this.itemId = itemId;
+	}
+	@Override
+	public String toString() {
+		return "ItemID [itemId=" + itemId + "]";
 	}
 }

@@ -2,15 +2,28 @@ package demo;
 
 public class User {
 	
-	private UserID userId;
+	private UserId userId;
 	public User() {
-		// TODO Auto-generated constructor stub
+		this.userId = new UserId(); //
 	}
-	public UserID getId() {
+	public User(String space, String email) {
+		this();
+		this.userId.setSpace(space);
+		this.userId.setEmail(email);
+	}
+	
+	public void setSpace(String space) {
+		userId.setSpace(space);
+	}
+	
+	public void setEmail(String email) {
+		userId.setEmail(email);
+	}
+	public UserId getUserId() {
 		return userId;
 	}
-	public void setId(UserID id) {
-		this.userId = id;
+	public void setUserId(UserId userId) {
+		this.userId = userId;
 	}
 
 }

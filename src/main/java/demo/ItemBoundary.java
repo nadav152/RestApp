@@ -6,7 +6,7 @@ import java.util.Map;
 //Save this file again
 
 public class ItemBoundary {
-	private ItemID itemID;			
+	private ItemId itemID;			
 	private String type;
 	private String name;
 	private boolean active;
@@ -22,7 +22,7 @@ public class ItemBoundary {
 	
 	public ItemBoundary(String space, String id, String type, String name, boolean active, UserBoundary createdBy, Location location) {
 		this();
-		this.itemID = new ItemID(space, id);
+		this.itemID = new ItemId(space, id);
 		this.type = type;
 		this.name = name;
 		this.active = active;
@@ -32,7 +32,7 @@ public class ItemBoundary {
 	
 	public ItemBoundary(String space, String id, ItemBoundary IDlessItem) {
 		this();
-		this.itemID = new ItemID(space, id);
+		this.itemID = new ItemId(space, id);
 		this.type = IDlessItem.getType();
 		System.out.println(IDlessItem.getType());
 		this.name = IDlessItem.getName();
@@ -49,11 +49,11 @@ public class ItemBoundary {
 				+ ", itemAttributes=" + itemAttributes + "]";
 	}
 
-	public ItemID getItemID() {
+	public ItemId getItemID() {
 		return itemID;
 	}
 
-	public void setItemID(ItemID itemID) {
+	public void setItemID(ItemId itemID) {
 		this.itemID = itemID;
 	}
 

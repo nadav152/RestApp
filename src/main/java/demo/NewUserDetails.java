@@ -1,16 +1,17 @@
 package demo;
 
 public class NewUserDetails {
-	String email;
-	String role;
-	String username;
-	String avatar;
+	private String email;
+	private String role;
+	private String username;
+	private String avatar;
 	
 	public NewUserDetails() {
 		
 	}
 	
 	public NewUserDetails(String email, String role, String username, String avatar) {
+		this();
 		this.email = email;
 		this.role = role;
 		this.username = username;

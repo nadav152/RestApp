@@ -19,7 +19,7 @@ public class TwinsController {
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createUser (@RequestBody NewUserDetails ud){
 		// STUB implementation
-		UserBoundary u = new UserBoundary("sector 12", ud.email, ud.role, ud.username, ud.avatar);
+		UserBoundary u = new UserBoundary("sector 12", ud.getEmail(), ud.getRole(), ud.getUsername(), ud.getAvatar());
 		return u;
 	}
 	
@@ -39,7 +39,7 @@ public class TwinsController {
 			path="/twins/users/{userSpace}/{userEmail}",
 			method = RequestMethod.PUT,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateUser (UserBoundary ub,
+	public void updateUser (@RequestBody UserBoundary ub,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
@@ -123,6 +123,7 @@ public class TwinsController {
 	public OperationBoundary syncOperation (@RequestBody OperationBoundary operation){
 		// STUB implementation
 		OperationBoundary ob = new OperationBoundary("stub space","99",operation);
+		
 		return ob;
 //		return operation;
 	}
@@ -172,27 +173,27 @@ public class TwinsController {
 		
 		return users;
 	}
-//	
-//	@RequestMapping(
-//			path="/twins/admin/operations/{userSpace}/{userEmail}",
-//			method = RequestMethod.GET,
-//			produces = MediaType.APPLICATION_JSON_VALUE)
-//	public OperationBoundary[] exportOperations (
-//			@PathVariable("userSpace") String userSpace,
-//			@PathVariable("userEmail") String userEmail){
-//		// STUB implementation
-//		UserBoundary ub = new UserBoundary("Sector 12", "EfiRefaelo@gmail.com", "Member", "EfiRefaelo", "ER");
-//		ItemBoundary ib = new ItemBoundary("Pool", "124", "Attraction", "showers", true, ub, new Location(32.2, 36.5));
-//		OperationBoundary ob1 = new OperationBoundary("Sector 12", "11", "operationType", ib, ub);
-//		OperationBoundary ob2 = new OperationBoundary("Sector 12", "12", "operationType2", ib, ub);
-//		ob1.getOperationAttributes().put("key1", "table");
-//		ob1.getOperationAttributes().put("key2", "desk");
-//		ob2.getOperationAttributes().put("key1", "chair");
-//		ob2.getOperationAttributes().put("key2", "screen");
-//		OperationBoundary[] operations = {ob1, ob2};
-//		
-//		
-//		return operations;
-//	}
+	
+	@RequestMapping(
+			path="/twins/admin/operations/{userSpace}/{userEmail}",
+			method = RequestMethod.GET,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	public OperationBoundary[] exportOperations (
+			@PathVariable("userSpace") String userSpace,
+			@PathVariable("userEmail") String userEmail){
+		// STUB implementation
+		User u = new User("Sector 12", "EfiRefaelo@gmail.com");
+		Item i = new Item("Pool", "124");
+		OperationBoundary ob1 = new OperationBoundary("Sector 12", "11", "operationType", i, u);
+		OperationBoundary ob2 = new OperationBoundary("Sector 12", "12", "operationType2", i, u);
+		ob1.getOperationAttributes().put("key1", "table");
+		ob1.getOperationAttributes().put("key2", "desk");
+		ob2.getOperationAttributes().put("key1", "chair");
+		ob2.getOperationAttributes().put("key2", "screen");
+		OperationBoundary[] operations = {ob1, ob2};
+		
+		
+		return operations;
+	}
 	
 }
