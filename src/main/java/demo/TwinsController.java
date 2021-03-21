@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TwinsController {
+	
 	/* Users related API */
 	@RequestMapping(
 			path="/twins/users",
@@ -125,7 +126,6 @@ public class TwinsController {
 		OperationBoundary ob = new OperationBoundary("stub space","99",operation);
 		
 		return ob;
-//		return operation;
 	}
 	
 	
@@ -191,7 +191,6 @@ public class TwinsController {
 		ob2.getOperationAttributes().put("key1", "chair");
 		ob2.getOperationAttributes().put("key2", "screen");
 		OperationBoundary[] operations = {ob1, ob2};
-		
 		
 		return operations;
 	}
