@@ -2,6 +2,9 @@ package twins.dal;
 
 import org.springframework.data.repository.CrudRepository;
 
+
+import twins.data.UserEntity;
+
 public interface UserHandler extends CrudRepository<UserEntity, String> {
 	// C - Create
 	
@@ -10,4 +13,5 @@ public interface UserHandler extends CrudRepository<UserEntity, String> {
 	// U - Update
 	
 	// D - Delete
+
 }

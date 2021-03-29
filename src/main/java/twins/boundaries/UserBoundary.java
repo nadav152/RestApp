@@ -2,6 +2,7 @@ package twins.boundaries;
 
 import twins.additionalClasses.UserId;
 
+
 public class UserBoundary {
 	private UserId userID;
 	private String role;
@@ -33,7 +34,7 @@ public class UserBoundary {
 		return role;
 	}
 
-	public void Role(String role) {
+	public void setRole(String role) {
 		this.role = role;
 	}
 
@@ -41,7 +42,7 @@ public class UserBoundary {
 		return username;
 	}
 
-	public void setLastName(String username) {
+	public void setUserName(String username) {
 		this.username = username;
 	}
 
