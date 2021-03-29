@@ -1,4 +1,4 @@
-package demo;
+package twins.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,10 +7,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import twins.additionalClasses.Item;
+import twins.additionalClasses.Location;
+import twins.additionalClasses.NewUserDetails;
+import twins.additionalClasses.User;
+import twins.boundaries.ItemBoundary;
+import twins.boundaries.OperationBoundary;
+import twins.boundaries.UserBoundary;
+import twins.logic.ItemsService;
+import twins.logic.OperationsService;
+import twins.logic.UsersService;
+
 // Save this file again
 
 @RestController
 public class TwinsController {
+	private UsersService usersService;
+	private ItemsService itemsService;
+	private OperationsService operationsService;
 	
 	/* Users related API */
 	@RequestMapping(

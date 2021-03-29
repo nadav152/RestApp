@@ -1,9 +1,12 @@
-package demo;
+package twins.boundaries;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 //Save this file again
+
+import twins.additionalClasses.ItemId;
+import twins.additionalClasses.Location;
 
 public class ItemBoundary {
 	private ItemId itemID;			

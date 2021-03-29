@@ -1,5 +1,6 @@
-package demo;
+package twins.boundaries;
 
+import twins.additionalClasses.UserId;
 
 public class UserBoundary {
 	private UserId userID;

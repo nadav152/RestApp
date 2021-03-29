@@ -1,4 +1,4 @@
-package demo;
+package twins.additionalClasses;
 
 public class UserId {
 	private String space;
