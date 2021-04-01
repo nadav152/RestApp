@@ -1,15 +1,17 @@
 package twins.logic;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
-
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import twins.additionalClasses.ItemId;
 import twins.boundaries.ItemBoundary;
+import twins.boundaries.UserBoundary;
 import twins.dal.ItemHandler;
 import twins.data.ItemEntity;
+import twins.data.UserEntity;
 
 /* 
 ------------------------------------------------------------
@@ -34,10 +36,11 @@ public class ItemsServiceImplement implements ItemsService {
 	@Override
 	public ItemBoundary createItem(String userSpace, String userEmail, ItemBoundary item) {
 		if (item != null) {
-			item.setItemID(new ItemId(userSpace, userEmail)); // TODO check if ItemId needs ID as integer or userEmail												// is okay !!!
-			ItemEntity itemEntity = new ItemEntity(item.getItemID(),item.getType(),item.getName(),item.isActive(),
-					item.getCreatedTimestamp(),item.getCreatedBy(),item.getLocation(),item.getItemAttributes());
-			itemHandler.save(itemEntity);
+			item.setItemID(new ItemId(userSpace, userEmail)); // TODO check if ItemId needs ID as integer or userEmail
+																// // is okay !!!
+			ItemEntity itemEntity = new ItemEntity(item.getItemID(), item.getType(), item.getName(), item.isActive(),
+					item.getCreatedTimestamp(), item.getCreatedBy(), item.getLocation(), item.getItemAttributes());
+			this.itemHandler.save(itemEntity);
 
 		} else
 			System.out.println("Item is not Initialized");
@@ -47,14 +50,29 @@ public class ItemsServiceImplement implements ItemsService {
 	@Override
 	public ItemBoundary updateItem(String userSpace, String userEmail, String itemSpace, String itemId,
 			ItemBoundary update) {
-		// TODO Auto-generated method stub
-		return null;
+		Optional<ItemEntity> itemEntity = this.itemHandler.findById(itemId);
+		if (itemEntity != null) {
+			// we need to ask eyal what to do
+		}
+		return update;
 	}
 
 	@Override
 	public List<ItemBoundary> getAllItems(String userSpace, String userEmail) {
-		// TODO Auto-generated method stub
-		return null;
+		Iterable<ItemEntity> allEntities = this.itemHandler.findAll();
+		List<ItemBoundary> itemBoundaries = new ArrayList<>();
+		for (ItemEntity itemEntity : allEntities) {
+			ItemBoundary itemBoundary = new ItemBoundary(itemEntity.getItemID().getSpace(),
+					itemEntity.getItemID().getID(),
+					itemEntity.getType(),
+					itemEntity.getName(),
+					itemEntity.isActive(),
+					itemEntity.getCreatedBy(),
+					itemEntity.getLocation());
+
+			itemBoundaries.add(itemBoundary);
+		}
+		return itemBoundaries;
 	}
 
 	@Override
