@@ -1,6 +1,7 @@
 package twins.boundaries;
 
 import twins.additionalClasses.UserId;
+import twins.data.UserEntity;
 
 
 public class UserBoundary {
@@ -20,6 +21,13 @@ public class UserBoundary {
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
+	}
+	public UserBoundary(UserEntity userEntity) {
+		this();
+		this.userID = userEntity.getUserID();
+		this.role = userEntity.getRole();
+		this.username = userEntity.getUsername();
+		this.avatar = userEntity.getAvatar();
 	}
 	
 	public UserId getUserID() {

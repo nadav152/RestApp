@@ -7,6 +7,7 @@ import java.util.Map;
 import twins.additionalClasses.Item;
 import twins.additionalClasses.OperationId;
 import twins.additionalClasses.User;
+import twins.data.OperationEntity;
 
 public class OperationBoundary {
 	private OperationId operationId;
@@ -37,6 +38,16 @@ public class OperationBoundary {
 		this.invokedBy = ob.getInvokedBy();
 		this.createdTimestamp = ob.getCreatedTimestamp();
 		this.operationAttributes.putAll(ob.getOperationAttributes());
+	}
+
+	public OperationBoundary(OperationEntity oe) {
+		this();
+		this.operationId = oe.getOperationId();
+		this.type = oe.getType();
+		this.item = oe.getItem();
+		this.invokedBy = oe.getInvokedBy();
+		this.createdTimestamp = oe.getCreatedTimestamp();
+		this.operationAttributes.putAll(oe.getOperationAttributes());
 	}
 
 	public OperationId getOperationId() {

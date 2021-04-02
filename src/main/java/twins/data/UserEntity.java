@@ -27,7 +27,7 @@ public class UserEntity {
 		this.userID = new UserId();
 	}
 	public UserEntity(UserId userID, String role, String username, String avatar) {
-		super();
+		this();
 		this.userID = userID;
 		this.role = role;
 		this.username = username;

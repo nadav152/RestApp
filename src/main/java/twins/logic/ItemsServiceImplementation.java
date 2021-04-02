@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import twins.additionalClasses.ItemId;
@@ -24,11 +25,12 @@ in this class we need to check :
 */
 
 @Service
-public class ItemsServiceImplement implements ItemsService {
+public class ItemsServiceImplementation implements ItemsService {
 
 	private ItemHandler itemHandler;
-
-	public ItemsServiceImplement(ItemHandler itemHandler) {
+	
+	@Autowired
+	public ItemsServiceImplementation(ItemHandler itemHandler) {
 		super();
 		this.itemHandler = itemHandler;
 	}
