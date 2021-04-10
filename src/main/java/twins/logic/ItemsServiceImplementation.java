@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import twins.additionalClasses.ItemId;
+import twins.additionalClasses.Location;
 import twins.boundaries.ItemBoundary;
+import twins.boundaries.UserBoundary;
 import twins.dal.ItemHandler;
 import twins.data.ItemEntity;
 
@@ -51,21 +53,20 @@ public class ItemsServiceImplementation implements ItemsService {
 		if (item == null || item.getType() == null) {
 			throw new RuntimeException("Item must not be null");
 		}
-		
+
 		// 2. boundary -> entity
 		ItemEntity entity = this.convertToEntity(item);
-		
-		// 3. generate ID + timestamp 
+
+		// 3. generate ID + timestamp
 		entity.setId(UUID.randomUUID().toString());
 		entity.setCreatedTimestamp(new Date());
-		
+
 		// 4. set dummy to a constant of the project
 		entity.setCountryClub(this.countryClub);
-		
+
 		// 5. INSERT to database
-		entity = this.itemHandler
-			.save(entity);
-		
+		entity = this.itemHandler.save(entity);
+
 		// 6. entity -> boundary
 		return this.convertToBoundary(entity);
 	}
@@ -76,7 +77,7 @@ public class ItemsServiceImplementation implements ItemsService {
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
 		if (existing.isPresent()) {
 			update.setItemID(new ItemId(existing.get().getSpace(), existing.get().getId()));
-			update.setCreatedBy(existing.get().getCreatedBy());
+			update.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserBoundary.class));
 			update.setCreatedTimestamp(existing.get().getCreatedTimestamp());
 			ItemEntity updatedEntity = this.convertToEntity(update);
 
@@ -98,7 +99,9 @@ public class ItemsServiceImplementation implements ItemsService {
 		List<ItemBoundary> rv = new ArrayList<>();
 		for (ItemEntity entity : allEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-			rv.add(boundary);
+			if (boundary.getCreatedBy().getUserID().getSpace() == userSpace
+					&& boundary.getCreatedBy().getUserID().getEmail() == userEmail)
+				rv.add(boundary);
 		}
 		return rv;
 	}
@@ -127,8 +130,8 @@ public class ItemsServiceImplementation implements ItemsService {
 		boundary.setType(entity.getType());
 		boundary.setName(entity.getName());
 		boundary.setActive(entity.isActive());
-		boundary.setCreatedBy(entity.getCreatedBy());
-		boundary.setLocation(entity.getLocation());
+		boundary.setCreatedBy(this.unmarshall(entity.getCreatedBy(), UserBoundary.class));
+		boundary.setLocation(this.unmarshall(entity.getLocation(), Location.class));
 
 		boundary.setCreatedTimestamp(entity.getCreatedTimestamp());
 		String details = entity.getItemAttributes();
@@ -137,7 +140,7 @@ public class ItemsServiceImplementation implements ItemsService {
 		boundary.setItemAttributes(moreDetailsMap);
 		return boundary;
 	}
-	
+
 	private ItemEntity convertToEntity(ItemBoundary boundary) {
 		ItemEntity entity = new ItemEntity();
 		entity.setId(boundary.getItemID().getID());
@@ -146,8 +149,8 @@ public class ItemsServiceImplementation implements ItemsService {
 		entity.setName(boundary.getName());
 		entity.setActive(boundary.isActive());
 		entity.setCreatedTimestamp(boundary.getCreatedTimestamp());
-		entity.setCreatedBy(boundary.getCreatedBy());
-		entity.setLocation(boundary.getLocation());
+		entity.setCreatedBy(this.marshall(boundary.getCreatedBy()));
+		entity.setLocation(this.marshall(boundary.getLocation()));
 		// marshalling of Map to JSON (returned as String)
 		entity.setItemAttributes(this.marshall(boundary.getItemAttributes()));
 		return entity;

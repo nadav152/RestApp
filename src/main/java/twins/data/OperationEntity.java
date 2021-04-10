@@ -54,7 +54,7 @@ public class OperationEntity {
 		this.operationAttributes = operationAttributes;
 	}
 
-	@Id
+	@Transient
 	public OperationId getOperationId() {
 		return operationId;
 	}
@@ -62,7 +62,7 @@ public class OperationEntity {
 	public void setOperationId(OperationId operationId) {
 		this.operationId = operationId;
 	}
-	
+	@Id
 	public String getType() {
 		return type;
 	}

@@ -1,9 +1,6 @@
 package twins.data;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,11 +8,6 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
-import twins.additionalClasses.ItemId;
-import twins.additionalClasses.Location;
-import twins.boundaries.UserBoundary;
 
 /*
 ITEMS_TABLE
@@ -35,8 +27,8 @@ public class ItemEntity {
 	private String name;
 	private boolean active;
 	private Date createdTimestamp;
-	private UserBoundary createdBy;
-	private Location location;
+	private String createdBy;
+	private String location;
 	private String itemAttributes;
 	private String countryClub;
 
@@ -44,21 +36,6 @@ public class ItemEntity {
 	public ItemEntity() {
 
 	}
-
-//	public ItemEntity(ItemId itemID, String type, String name, boolean active, Date createdTimestamp,
-//			UserBoundary createdBy, Location location, Map<String, String> itemAttributes) {
-//		super();
-//		this.itemID = itemID;
-//		this.type = type;
-//		this.name = name;
-//		this.active = active;
-//		this.createdTimestamp = createdTimestamp;
-//		this.createdBy = createdBy;
-//		this.location = location;
-//		this.itemAttributes = itemAttributes;
-//	}
-
-	
 
 	@Id
 	public String getId() {
@@ -120,23 +97,23 @@ public class ItemEntity {
 		this.createdTimestamp = createdTimestamp;
 	}
 
-	
-	public UserBoundary getCreatedBy() {
+
+	public String getCreatedBy() {
 		return createdBy;
 	}
 
 
-	public void setCreatedBy(UserBoundary createdBy) {
+	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
 	}
 
 	
-	public Location getLocation() {
+	public String getLocation() {
 		return location;
 	}
 
 	
-	public void setLocation(Location location) {
+	public void setLocation(String location) {
 		this.location = location;
 	}
 
