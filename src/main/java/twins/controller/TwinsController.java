@@ -72,21 +72,20 @@ public class TwinsController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		ItemBoundary ib = new ItemBoundary("dairy", "123", IDlessItem);
-		return ib;
+		return this.itemsService.createItem(userSpace, userEmail, IDlessItem);
 	}
 	
 	@RequestMapping(
 			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
 			method = RequestMethod.PUT,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateItem (@RequestBody ItemBoundary ib,
+	public void updateItem (@RequestBody ItemBoundary update,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
 			@PathVariable("itemID") String itemID){
-		// STUB implementation
-		System.err.println("The item " + itemID + " from space " + itemSpace + " has been updated by " + userEmail + " from space " + userSpace);
+		
+		this.itemsService.updateItem(userSpace, userEmail, itemSpace, itemID, update);
 	}
 	
 	@RequestMapping(
@@ -98,10 +97,8 @@ public class TwinsController {
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
 			@PathVariable("itemID") String itemID){
-		// STUB implementation
-		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
-		ItemBoundary ib = new ItemBoundary(itemSpace, itemID, "food", "cheese", true, u, new Location(32.2, 36.5));
-		return ib;
+		
+		return this.itemsService.getSpecificItem(userSpace, userEmail, itemSpace, itemID);
 	}
 	
 	@RequestMapping(
@@ -111,11 +108,8 @@ public class TwinsController {
 	public ItemBoundary[] retrieveAllItem (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
-		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
-		ItemBoundary[] allItems = {new ItemBoundary("Pool", "124", "Attraction", "showers", true, u, new Location(32.2, 36.5) ),
-									new ItemBoundary("Gym", "125", "Outfit", "Fins", true, u, new Location(32.2, 36.5))};
-		return allItems;
+
+		return this.itemsService.getAllItems(userSpace, userEmail).toArray(new ItemBoundary[0]);
 	}
 		
 	/* Operations related API*/
