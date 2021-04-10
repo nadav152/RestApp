@@ -16,7 +16,7 @@ public class ItemBoundary {
 	private Date createdTimestamp;
 	private UserBoundary createdBy;
 	private Location location;
-	private Map<String, String> itemAttributes;
+	private Map<String, Object> itemAttributes;
 	
 	public ItemBoundary() {
 		this.createdTimestamp = new Date();
@@ -108,12 +108,12 @@ public class ItemBoundary {
 		this.location = location;
 	}
 
-	public Map<String, String> getItemAttributes() {
+	public Map<String, Object> getItemAttributes() {
 		return itemAttributes;
 	}
 
-	public void setItemAttributes(Map<String, String> itemAttributes) {
-		this.itemAttributes = itemAttributes;
+	public void setItemAttributes(Map<String, Object> moreDetailsMap) {
+		this.itemAttributes = moreDetailsMap;
 	}
 
 	

@@ -4,9 +4,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import twins.additionalClasses.ItemId;
@@ -25,45 +29,54 @@ DATE       | VARCHAR(255)  | VARCHAR(255) | BOOLEAN              //TODO add more
 @Table(name = "ITEMS_TABLE")
 public class ItemEntity {
 
-	private ItemId itemID;
+	private String id;
+	private String space;
 	private String type;
 	private String name;
 	private boolean active;
 	private Date createdTimestamp;
 	private UserBoundary createdBy;
 	private Location location;
-	private Map<String, String> itemAttributes;
+	private String itemAttributes;
+	private String countryClub;
 
+	
 	public ItemEntity() {
-		this.itemID = new ItemId();
-		this.createdTimestamp = new Date();
-		this.createdBy = new UserBoundary();
-		this.location = new Location();
-		this.itemAttributes = new HashMap<>();
+
 	}
 
-	public ItemEntity(ItemId itemID, String type, String name, boolean active, Date createdTimestamp,
-			UserBoundary createdBy, Location location, Map<String, String> itemAttributes) {
-		super();
-		this.itemID = itemID;
-		this.type = type;
-		this.name = name;
-		this.active = active;
-		this.createdTimestamp = createdTimestamp;
-		this.createdBy = createdBy;
-		this.location = location;
-		this.itemAttributes = itemAttributes;
+//	public ItemEntity(ItemId itemID, String type, String name, boolean active, Date createdTimestamp,
+//			UserBoundary createdBy, Location location, Map<String, String> itemAttributes) {
+//		super();
+//		this.itemID = itemID;
+//		this.type = type;
+//		this.name = name;
+//		this.active = active;
+//		this.createdTimestamp = createdTimestamp;
+//		this.createdBy = createdBy;
+//		this.location = location;
+//		this.itemAttributes = itemAttributes;
+//	}
+
+	
+
+	@Id
+	public String getId() {
+		return id;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
 	}
 
-	@Transient
-	public ItemId getItemID() {
-		return itemID;
+	public String getSpace() {
+		return space;
 	}
 
-	@Transient
-	public void setItemID(ItemId itemID) {
-		this.itemID = itemID;
+	public void setSpace(String space) {
+		this.space = space;
 	}
+
 
 	public String getType() {
 		return type;
@@ -88,8 +101,17 @@ public class ItemEntity {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+	
+	public String getCountryClub() {
+		return countryClub;
+	}
 
-	@Id
+	public void setCountryClub(String countryClub) {
+		this.countryClub = countryClub;
+	}
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="MESSAGE_TIMESTAMP") //  set column name: MESSAGE_TIMESTAMP
 	public Date getCreatedTimestamp() {
 		return createdTimestamp;
 	}
@@ -98,33 +120,33 @@ public class ItemEntity {
 		this.createdTimestamp = createdTimestamp;
 	}
 
-	@Transient
+	
 	public UserBoundary getCreatedBy() {
 		return createdBy;
 	}
 
-	@Transient
+
 	public void setCreatedBy(UserBoundary createdBy) {
 		this.createdBy = createdBy;
 	}
 
-	@Transient
+	
 	public Location getLocation() {
 		return location;
 	}
 
-	@Transient
+	
 	public void setLocation(Location location) {
 		this.location = location;
 	}
 
-	@Transient
-	public Map<String, String> getItemAttributes() {
+	@Lob
+	public String getItemAttributes() {
 		return itemAttributes;
 	}
 
-	@Transient
-	public void setItemAttributes(Map<String, String> itemAttributes) {
+	
+	public void setItemAttributes(String itemAttributes) {
 		this.itemAttributes = itemAttributes;
 	}
 }
