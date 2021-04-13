@@ -1,8 +1,10 @@
 package twins.additionalClasses;
 
+import twins.data.UserRole;
+
 public class NewUserDetails {
 	private String email;
-	private String role;
+	private UserRole role;
 	private String username;
 	private String avatar;
 	
@@ -10,7 +12,7 @@ public class NewUserDetails {
 		
 	}
 	
-	public NewUserDetails(String email, String role, String username, String avatar) {
+	public NewUserDetails(String email, UserRole role, String username, String avatar) {
 		this();
 		this.email = email;
 		this.role = role;
@@ -26,11 +28,11 @@ public class NewUserDetails {
 		this.email = email;
 	}
 
-	public String getRole() {
+	public UserRole getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(UserRole role) {
 		this.role = role;
 	}
 

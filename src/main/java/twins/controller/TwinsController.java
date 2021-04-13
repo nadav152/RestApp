@@ -14,6 +14,7 @@ import twins.additionalClasses.User;
 import twins.boundaries.ItemBoundary;
 import twins.boundaries.OperationBoundary;
 import twins.boundaries.UserBoundary;
+import twins.data.UserRole;
 import twins.logic.ItemsService;
 import twins.logic.OperationsService;
 import twins.logic.UsersService;
@@ -46,7 +47,7 @@ public class TwinsController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		UserBoundary u = new UserBoundary(userSpace, userEmail, "Member", "EfiRefaelo", "ER");
+		UserBoundary u = new UserBoundary(userSpace, userEmail, UserRole.PLAYER, "EfiRefaelo", "ER");
 		return u;
 	}
 	
@@ -72,20 +73,21 @@ public class TwinsController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		return this.itemsService.createItem(userSpace, userEmail, IDlessItem);
+		ItemBoundary ib = new ItemBoundary("dairy", "123", IDlessItem);
+		return ib;
 	}
 	
 	@RequestMapping(
 			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
 			method = RequestMethod.PUT,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateItem (@RequestBody ItemBoundary update,
+	public void updateItem (@RequestBody ItemBoundary ib,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
 			@PathVariable("itemID") String itemID){
-		
-		this.itemsService.updateItem(userSpace, userEmail, itemSpace, itemID, update);
+		// STUB implementation
+		System.err.println("The item " + itemID + " from space " + itemSpace + " has been updated by " + userEmail + " from space " + userSpace);
 	}
 	
 	@RequestMapping(
@@ -97,8 +99,10 @@ public class TwinsController {
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
 			@PathVariable("itemID") String itemID){
-		
-		return this.itemsService.getSpecificItem(userSpace, userEmail, itemSpace, itemID);
+		// STUB implementation
+		UserBoundary u = new UserBoundary(userSpace, userEmail, UserRole.PLAYER, "EfiRefaelo", "ER");
+		ItemBoundary ib = new ItemBoundary(itemSpace, itemID, "food", "cheese", true, u, new Location(32.2, 36.5));
+		return ib;
 	}
 	
 	@RequestMapping(
@@ -108,8 +112,11 @@ public class TwinsController {
 	public ItemBoundary[] retrieveAllItem (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-
-		return this.itemsService.getAllItems(userSpace, userEmail).toArray(new ItemBoundary[0]);
+		// STUB implementation
+		UserBoundary u = new UserBoundary(userSpace, userEmail, UserRole.PLAYER, "EfiRefaelo", "ER");
+		ItemBoundary[] allItems = {new ItemBoundary("Pool", "124", "Attraction", "showers", true, u, new Location(32.2, 36.5) ),
+									new ItemBoundary("Gym", "125", "Outfit", "Fins", true, u, new Location(32.2, 36.5))};
+		return allItems;
 	}
 		
 	/* Operations related API*/
@@ -176,8 +183,8 @@ public class TwinsController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
-		UserBoundary[] users = {new UserBoundary("Sector 12", "EfiRefaelo@gmail.com", "Member", "EfiRefaelo", "ER"),
-								new UserBoundary("Sector 12", "RoeAvshalom@gmail.com", "Member", "RoeAvshalom", "RA")};
+		UserBoundary[] users = {new UserBoundary("Sector 12", "EfiRefaelo@gmail.com", UserRole.PLAYER, "EfiRefaelo", "ER"),
+								new UserBoundary("Sector 12", "RoeAvshalom@gmail.com", UserRole.PLAYER, "RoeAvshalom", "RA")};
 		
 		return users;
 	}

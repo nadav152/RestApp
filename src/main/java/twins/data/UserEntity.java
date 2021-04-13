@@ -26,13 +26,7 @@ public class UserEntity {
 	public UserEntity() {
 		this.userID = new UserId();
 	}
-	public UserEntity(UserId userID, String role, String username, String avatar) {
-		this();
-		this.userID = userID;
-		this.role = role;
-		this.username = username;
-		this.avatar = avatar;
-	}
+	
 	@Transient
 	public UserId getUserID() {
 		return userID;

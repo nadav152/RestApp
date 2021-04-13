@@ -2,11 +2,12 @@ package twins.boundaries;
 
 import twins.additionalClasses.UserId;
 import twins.data.UserEntity;
+import twins.data.UserRole;
 
 
 public class UserBoundary {
 	private UserId userID;
-	private String role;
+	private UserRole role;
 	private String username;
 	private String avatar;
 
@@ -15,19 +16,12 @@ public class UserBoundary {
 		
 	}
 
-	public UserBoundary(String space, String email, String role, String username, String avatar) {
+	public UserBoundary(String space, String email, UserRole role, String username, String avatar) {
 		this();
 		this.userID = new UserId(space, email);
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
-	}
-	public UserBoundary(UserEntity userEntity) {
-		this();
-		this.userID = userEntity.getUserID();
-		this.role = userEntity.getRole();
-		this.username = userEntity.getUsername();
-		this.avatar = userEntity.getAvatar();
 	}
 	
 	public UserId getUserID() {
@@ -37,12 +31,16 @@ public class UserBoundary {
 	public void setUserID(UserId userID) {
 		this.userID = userID;
 	}
+	public void setUserID(String userSpace, String userEmail) {
+		this.userID.setSpace(userSpace);
+		this.userID.setEmail(userEmail);
+	}
 
-	public String getRole() {
+	public UserRole getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(UserRole role) {
 		this.role = role;
 	}
 
