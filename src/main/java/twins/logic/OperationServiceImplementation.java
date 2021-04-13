@@ -101,7 +101,7 @@ public class OperationServiceImplementation implements OperationsService {
 	}
 
 	@Override
-	@Transactional (readOnly = true)
+	@Transactional
 	public void deleteAllOperations(String adminSpace, String adminEmail) {
 		this.operationHandler.deleteAll();
 		
