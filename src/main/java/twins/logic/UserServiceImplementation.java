@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,7 +29,8 @@ public class UserServiceImplementation implements UsersService {
 		this.userHandler = userHandler;
 	}
 	
-	@Override											
+	@Override
+	@Transactional //(readOnly = false)
 	public UserBoundary createUser(UserBoundary boundary) {
 		if (boundary.getUsername()==null) {
 			throw new RuntimeException("UserName attribute must not be null");
@@ -51,6 +53,7 @@ public class UserServiceImplementation implements UsersService {
 	}
 
 	@Override											//maybe required catching the exception
+	@Transactional(readOnly = true)
 	public UserBoundary login(String userSpace, String userEmail) {
 		Optional<UserEntity> ue = this.userHandler.findById(userEmail); 
 		UserBoundary ub = new UserBoundary();
@@ -66,8 +69,8 @@ public class UserServiceImplementation implements UsersService {
 		return ub;
 	}
 
-	//not updating user id > take user id from vars not from update.
 	@Override
+	@Transactional //(readOnly = false)
 	public UserBoundary updateUser(String userSpace, String userEmail, UserBoundary update) {
 		Optional<UserEntity> oue = this.userHandler.findById(userEmail);
 		if (oue.isPresent()) {	//updating existing user.
@@ -82,6 +85,7 @@ public class UserServiceImplementation implements UsersService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail) {
 		Iterable<UserEntity> allEntities = this.userHandler.findAll();
 		List<UserBoundary> userBoundaries = new ArrayList<>(); 
@@ -92,6 +96,7 @@ public class UserServiceImplementation implements UsersService {
 	}
 
 	@Override
+	@Transactional //(readOnly = false)
 	public void deleteAllUsers(String adminSpace, String adminEmail) {
 		this.userHandler.deleteAll();
 		
@@ -116,6 +121,7 @@ public class UserServiceImplementation implements UsersService {
 		
 		return boundary;
 	}
+	
 	private String marshall(Object value) {
 		try {
 			return this.jackson
@@ -124,6 +130,7 @@ public class UserServiceImplementation implements UsersService {
 			throw new RuntimeException(e);
 		}
 	}
+	
 	private <T> T unmarshall(String json, Class<T> requiredType) {
 		try {
 			return this.jackson
