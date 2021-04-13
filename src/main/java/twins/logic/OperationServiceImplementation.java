@@ -96,6 +96,7 @@ public class OperationServiceImplementation implements OperationsService {
 			OperationBoundary ob = this.convertToBoundary(operation);
 			operationBoundaries.add(ob);
 		}
+		//TODO check about permissions 
 		return operationBoundaries;
 	}
 
@@ -106,20 +107,6 @@ public class OperationServiceImplementation implements OperationsService {
 		
 	}
 	
-	//convert boundary -> entity
-	private OperationEntity convertToEntity(OperationBoundary operation) {
-		OperationEntity entity = new OperationEntity();
-		entity.setOperationId(operation.getOperationId().getId());
-		entity.setType(operation.getType());
-		entity.setItem(operation.getItem());
-		entity.setCreatedTimestamp(operation.getCreatedTimestamp());
-		entity.setOperationAttributes(this.marshall(operation.getOperationAttributes()));
-		
-		if (operation.getInvokedBy()!= null) {
-			entity.setInvokedBy(new User(operation.getInvokedBy().getUserId().getEmail(),operation.getInvokedBy().getUserId().getSpace()));
-		}
-		return entity;
-	}
 	
 	//convert entity-> boundary
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
@@ -132,8 +119,24 @@ public class OperationServiceImplementation implements OperationsService {
 		Map<String, Object> operationAttributesMap = this.unmarshall(details, Map.class);
 		
 		ob.setOperationAttributes(operationAttributesMap);
-		ob.setInvokedBy(new User(oe.getInvokedBy().getUserId().getSpace(),oe.getInvokedBy().getUserId().getEmail()));
+		ob.setInvokedBy(this.unmarshall(oe.getInvokedBy(), User.class));;
 		return ob;
+	}
+	
+	//convert boundary -> entity
+	private OperationEntity convertToEntity(OperationBoundary operation) {
+		OperationEntity entity = new OperationEntity();
+		entity.setOperationId(operation.getOperationId().getId());
+		entity.setOperationSpace(operation.getOperationId().getSpace());
+		entity.setType(operation.getType());
+		entity.setItem(this.marshall(operation.getItem()));
+		entity.setCreatedTimestamp(operation.getCreatedTimestamp());
+		entity.setOperationAttributes(this.marshall(operation.getOperationAttributes()));
+		
+		if (operation.getInvokedBy()!= null) {
+			entity.setInvokedBy(this.marshall(operation.getInvokedBy()));
+		}
+		return entity;
 	}
 
 	private String marshall(Object value) {
@@ -145,11 +148,11 @@ public class OperationServiceImplementation implements OperationsService {
 		}
 	}
 	
-	private <T> T unmarshall(String details, Class<T> reqClass) {
+	private <T> T unmarshall(String json, Class<T> requiredType) {
 		try {
-			return this.jackson
-				.readValue(details, reqClass);
-		} catch (Exception e) {
+			return this.jackson.readValue(json, requiredType);
+		} 
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}

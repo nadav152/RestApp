@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -29,27 +30,23 @@ OPERATION_ID	       | VARCHAR(255)  | VARCHAR(255)              //TODO add more 
 @Entity
 @Table(name = "OPERATION_TABLE")
 public class OperationEntity {
-	private OperationId opId;
+	//private OperationId opId;
 	private String operationId;
 	private String operationSpace;
 	private String type;
-	private Item item;
+	private String item;
 	private Date createdTimestamp;
-	private User invokedBy;
+	private String invokedBy;
 	private String operationAttributes;
 	private String groupName;
 	
 	
 	
 	public OperationEntity() {
-		this.item = new Item();
 		this.createdTimestamp = new Date();
-		this.invokedBy = new User();
-		this.opId = new OperationId();
-		
 	}
 	
-	public OperationEntity(String operationId, String type, Item item, Date createdTimestamp, User invokedBy,
+	public OperationEntity(String operationId, String type, String item, Date createdTimestamp, String invokedBy,
 			String operationAttributes) {
 		this();
 		this.operationId = operationId;
@@ -62,19 +59,19 @@ public class OperationEntity {
 
 	@Id
 	public String getOperationId() {
-		return opId.getId();
+		return this.operationId;
 	}
 	
 	public void setOperationId(String operationId) {
-		this.operationId = opId.getId();
+		this.operationId = operationId;
 	}
 	@Transient
 	public String getOperationSpace() {
-		return opId.getSpace();
+		return this.operationSpace;
 	}
 	@Transient
 	public void setOperationSpace(String operationSpace) {
-		this.operationSpace = opId.getSpace();
+		this.operationSpace = operationSpace;
 	}
 	
 	public String getType() {
@@ -85,11 +82,11 @@ public class OperationEntity {
 		this.type = type;
 	}
 	@Transient
-	public Item getItem() {
+	public String getItem() {
 		return item;
 	}
 	@Transient
-	public void setItem(Item item) {
+	public void setItem(String item) {
 		this.item = item;
 	}
 	@Transient
@@ -103,14 +100,15 @@ public class OperationEntity {
 		this.createdTimestamp = createdTimestamp;
 	}
 	@Transient
-	public User getInvokedBy() {
+	public String getInvokedBy() {
 		return invokedBy;
 	}
 	@Transient
-	public void setInvokedBy(User invokedBy) {
+	public void setInvokedBy(String invokedBy) {
 		this.invokedBy = invokedBy;
 	}
 	@Transient
+	@Lob
 	public String getOperationAttributes() {
 		return operationAttributes;
 	}
@@ -127,7 +125,4 @@ public class OperationEntity {
 		this.groupName = groupName;
 	}
 
-
-	
-	
 }
