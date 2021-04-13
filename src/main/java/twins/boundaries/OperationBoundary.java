@@ -39,8 +39,9 @@ public class OperationBoundary {
 		this.createdTimestamp = ob.getCreatedTimestamp();
 		this.operationAttributes.putAll(ob.getOperationAttributes());
 	}
-
-	public OperationBoundary(OperationEntity oe) {
+	
+	//check if this constructor is needed 
+	/*public OperationBoundary(OperationEntity oe) {
 		this();
 		this.operationId = oe.getOperationId();
 		this.type = oe.getType();
@@ -48,7 +49,7 @@ public class OperationBoundary {
 		this.invokedBy = oe.getInvokedBy();
 		this.createdTimestamp = oe.getCreatedTimestamp();
 		this.operationAttributes.putAll(oe.getOperationAttributes());
-	}
+	}*/
 
 	public OperationId getOperationId() {
 		return operationId;
