@@ -74,7 +74,7 @@ public class TwinsController {
 	public ItemBoundary createItem (@RequestBody ItemBoundary IDlessItem,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
+		
 		ItemBoundary itemboundary = this.itemsService.createItem(userSpace, userEmail, IDlessItem);
 		return itemboundary;
 	}
