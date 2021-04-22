@@ -2,6 +2,7 @@ package twins.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,13 @@ import twins.logic.OperationsService;
 import twins.logic.UsersService;
 
 // Save this file again
+/* LAST UPDATE: 22/4/21 19:00 p.m
+- Added a Constructor for the services.  
+- Added class OperationTest.
+- Added one test invokedOperation(doesn't work at the moment).
+- 
+*/
+
 
 @RestController
 public class TwinsController {
@@ -29,6 +37,13 @@ public class TwinsController {
 	private ItemsService itemsService;
 	private OperationsService operationsService;
 	
+	
+	@Autowired
+	public TwinsController(UsersService usersService,ItemsService itemsService,OperationsService operationsService) {
+		this.usersService = usersService;
+		this.itemsService = itemsService;
+		this.operationsService = operationsService;
+	}
 	/* Users related API */
 	@RequestMapping(
 			path="/twins/users",
@@ -125,9 +140,8 @@ public class TwinsController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public Object invokeOperation (@RequestBody OperationBoundary operation){
-		OperationBoundary ob = new OperationBoundary("stub space","99",operation);
-		return ob;
-		// STUB implementation
+		return this.operationsService.invokeOperation(operation);
+		
 	}
 	
 	@RequestMapping(
@@ -136,10 +150,7 @@ public class TwinsController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public OperationBoundary syncOperation (@RequestBody OperationBoundary operation){
-		// STUB implementation
-		OperationBoundary ob = new OperationBoundary("stub space","99",operation);
-		
-		return ob;
+		return this.operationsService.invokeAsynchronousOperation(operation);
 	}
 	
 	
@@ -171,6 +182,7 @@ public class TwinsController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		// STUB implementation
+		this.operationsService.deleteAllOperations(userSpace, userEmail);
 		System.err.println("All Operations from space " + userSpace + " have been deleted by " + userEmail);
 	}
 	
@@ -195,18 +207,10 @@ public class TwinsController {
 	public OperationBoundary[] exportOperations (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
-		User u = new User("Sector 12", "EfiRefaelo@gmail.com");
-		Item i = new Item("Pool", "124");
-		OperationBoundary ob1 = new OperationBoundary("Sector 12", "11", "operationType", i, u);
-		OperationBoundary ob2 = new OperationBoundary("Sector 12", "12", "operationType2", i, u);
-		ob1.getOperationAttributes().put("key1", "table");
-		ob1.getOperationAttributes().put("key2", "desk");
-		ob2.getOperationAttributes().put("key1", "chair");
-		ob2.getOperationAttributes().put("key2", "screen");
-		OperationBoundary[] operations = {ob1, ob2};
 		
-		return operations;
+		List<OperationBoundary> allOp = this.operationsService.getAllOperations(userSpace, userEmail);
+		
+		return allOp.toArray(new OperationBoundary[0]);
 	}
 	
 }
