@@ -81,46 +81,46 @@ public class OperationEntity {
 	public void setType(String type) {
 		this.type = type;
 	}
-	@Transient
+	
 	public String getItem() {
 		return item;
 	}
-	@Transient
+	
 	public void setItem(String item) {
 		this.item = item;
 	}
-	@Transient
+	
 	public Date getCreatedTimestamp() {
 		return createdTimestamp;
 	}
-	@Transient
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="MESSAGE_TIMESTAMP")
 	public void setCreatedTimestamp(Date createdTimestamp) {
 		this.createdTimestamp = createdTimestamp;
 	}
-	@Transient
+	
 	public String getInvokedBy() {
 		return invokedBy;
 	}
-	@Transient
+	
 	public void setInvokedBy(String invokedBy) {
 		this.invokedBy = invokedBy;
 	}
-	@Transient
+	
 	@Lob
 	public String getOperationAttributes() {
 		return operationAttributes;
 	}
-	@Transient
+	
 	public void setOperationAttributes(String operationAttributes) {
 		this.operationAttributes = operationAttributes;
 	}
-	@Transient
+	
 	public String getGroupName() {
 		return groupName;
 	}
-	@Transient
+	
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
 	}

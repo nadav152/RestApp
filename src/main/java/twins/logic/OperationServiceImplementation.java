@@ -64,7 +64,7 @@ public class OperationServiceImplementation implements OperationsService {
 		oe.setGroupName(this.groupName);
 		
 		oe = this.operationHandler.save(oe);
-		
+		System.err.println(oe);
 		return this.convertToBoundary(oe);
 	}
 
@@ -112,14 +112,19 @@ public class OperationServiceImplementation implements OperationsService {
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
 		OperationBoundary ob = new OperationBoundary();
 		ob.setOperationId(new OperationId(oe.getOperationId(),oe.getOperationSpace()));
+		System.err.println("operId");
 		ob.setCreatedTimestamp(oe.getCreatedTimestamp());
-		
+		System.err.println("time");
 		String details = oe.getOperationAttributes();
+		System.err.println(details);
+		String type = oe.getType();
 		// use jackson for unmarshalling JSON --> Map
 		Map<String, Object> operationAttributesMap = this.unmarshall(details, Map.class);
-		
+		System.err.println("map");
 		ob.setOperationAttributes(operationAttributesMap);
-		ob.setInvokedBy(this.unmarshall(oe.getInvokedBy(), User.class));;
+		System.err.println("att");
+		ob.setInvokedBy(this.unmarshall(oe.getInvokedBy(), User.class));
+		System.err.println(ob.toString());
 		return ob;
 	}
 	
