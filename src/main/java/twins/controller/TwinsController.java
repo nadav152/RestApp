@@ -51,8 +51,8 @@ public class TwinsController {
 			produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createUser (@RequestBody NewUserDetails ud){
-		// STUB implementation
-		UserBoundary u = new UserBoundary("sector 12", ud.getEmail(), ud.getRole(), ud.getUsername(), ud.getAvatar());
+		
+		UserBoundary u = this.usersService.createUser(new UserBoundary("sector 12", ud.getEmail(), ud.getRole(), ud.getUsername(), ud.getAvatar()));
 		return u;
 	}
 	
@@ -63,8 +63,8 @@ public class TwinsController {
 	public UserBoundary loginAndRetrieveDetails (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
-		UserBoundary u = new UserBoundary(userSpace, userEmail, UserRole.PLAYER, "EfiRefaelo", "ER");
+		
+		UserBoundary u = this.usersService.login(userSpace, userEmail);
 		return u;
 	}
 	
@@ -75,7 +75,7 @@ public class TwinsController {
 	public void updateUser (@RequestBody UserBoundary ub,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
+		this.usersService.updateUser(userSpace, userEmail, ub);
 		System.err.println("The user from space " + userSpace + " has been updated by " + userEmail);
 	}
 	
@@ -161,7 +161,7 @@ public class TwinsController {
 	public void deleteUsers (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
+		this.usersService.deleteAllUsers(userSpace, userEmail);
 		System.err.println("All users from space " + userSpace + " have been deleted by " + userEmail);
 	}
 	
@@ -171,7 +171,7 @@ public class TwinsController {
 	public void deleteItems (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
+		this.itemsService.deleteAllItems(userSpace, userEmail);
 		System.err.println("All items from space " + userSpace + " have been deleted by " + userEmail);
 	}
 	
@@ -181,7 +181,6 @@ public class TwinsController {
 	public void deleteOperations (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
 		this.operationsService.deleteAllOperations(userSpace, userEmail);
 		System.err.println("All Operations from space " + userSpace + " have been deleted by " + userEmail);
 	}
@@ -193,11 +192,10 @@ public class TwinsController {
 	public UserBoundary[] exportUsers (
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
-		// STUB implementation
-		UserBoundary[] users = {new UserBoundary("Sector 12", "EfiRefaelo@gmail.com", UserRole.PLAYER, "EfiRefaelo", "ER"),
-								new UserBoundary("Sector 12", "RoeAvshalom@gmail.com", UserRole.PLAYER, "RoeAvshalom", "RA")};
 		
-		return users;
+		List <UserBoundary> usersList = this.usersService.getAllUsers(userSpace, userEmail);
+		UserBoundary[] usersArr = usersList.toArray(new UserBoundary[0]);
+		return usersArr;
 	}
 	
 	@RequestMapping(
