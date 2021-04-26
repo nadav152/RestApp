@@ -22,6 +22,7 @@ import twins.boundaries.OperationBoundary;
 import twins.boundaries.UserBoundary;
 import twins.dal.OperationHandler;
 import twins.data.OperationEntity;
+import twins.additionalClasses.Item;
 
 @Service
 public class OperationServiceImplementation implements OperationsService {
@@ -92,9 +93,9 @@ public class OperationServiceImplementation implements OperationsService {
 	public List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail) {
 		Iterable<OperationEntity> allEntities = this.operationHandler.findAll();
 		List<OperationBoundary> operationBoundaries = new ArrayList<>(); 
+		System.err.println("in get all oper");
 		for (OperationEntity operation : allEntities) {
-			OperationBoundary ob = this.convertToBoundary(operation);
-			operationBoundaries.add(ob);
+			operationBoundaries.add(this.convertToBoundary(operation));
 		}
 		//TODO check about permissions 
 		return operationBoundaries;
@@ -111,20 +112,15 @@ public class OperationServiceImplementation implements OperationsService {
 	//convert entity-> boundary
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
 		OperationBoundary ob = new OperationBoundary();
-		ob.setOperationId(new OperationId(oe.getOperationId(),oe.getOperationSpace()));
-		System.err.println("operId");
+		ob.setOperationId(new OperationId(oe.getOperationSpace(),oe.getOperationId()));
+		ob.setType(oe.getType());
 		ob.setCreatedTimestamp(oe.getCreatedTimestamp());
-		System.err.println("time");
+		ob.setItem(this.unmarshall(oe.getItem(), Item.class));
 		String details = oe.getOperationAttributes();
-		System.err.println(details);
-		String type = oe.getType();
 		// use jackson for unmarshalling JSON --> Map
 		Map<String, Object> operationAttributesMap = this.unmarshall(details, Map.class);
-		System.err.println("map");
 		ob.setOperationAttributes(operationAttributesMap);
-		System.err.println("att");
 		ob.setInvokedBy(this.unmarshall(oe.getInvokedBy(), User.class));
-		System.err.println(ob.toString());
 		return ob;
 	}
 	
