@@ -51,7 +51,6 @@ public class TwinsController {
 			produces = MediaType.APPLICATION_JSON_VALUE,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary createUser (@RequestBody NewUserDetails ud){
-		
 		UserBoundary u = this.usersService.createUser(new UserBoundary("sector 12", ud.getEmail(), ud.getRole(), ud.getUsername(), ud.getAvatar()));
 		return u;
 	}
