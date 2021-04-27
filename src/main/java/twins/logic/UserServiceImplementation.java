@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,16 @@ public class UserServiceImplementation implements UsersService {
 		this.userHandler = userHandler;
 	}
 	
+	@Value("${spring.application.name:2021b.integ}")
+	public void setSpace(String space) {
+		this.space = space;
+	}
+	
+	@PostConstruct
+	public void init() {
+		System.err.println("space: " + this.space);
+	}
+	
 	@Override
 	@Transactional //(readOnly = false)
 	public UserBoundary createUser(UserBoundary boundary) {
@@ -45,10 +58,11 @@ public class UserServiceImplementation implements UsersService {
 			throw new RuntimeException("Email attribute is not valid");
 		}
 		UserEntity entity = this.convertToEntity(boundary);
-		entity.getUserID().setSpace(space);
-		
+		entity.setSpace(space);
+		entity.setEmail(boundary.getUserID().getEmail());
 		entity = this.userHandler.save(entity);
-		
+		//System.err.println(entity.getSpace() + " before convert after save");
+				
 		return this.convertToBoundary(entity);
 	}
 
@@ -59,7 +73,8 @@ public class UserServiceImplementation implements UsersService {
 		UserBoundary ub = new UserBoundary();
 		if (ue.isPresent()) {
 			ub.setUserID(new UserId(userSpace,userEmail));
-			ub.setRole(this.unmarshall(ue.get().getRole(), UserRole.class));
+			ub.setRole(ue.get().getRole());
+			//System.err.println(ub.getRole() + "in login");
 			ub.setUserName(ue.get().getUsername());
 			ub.setAvatar(ue.get().getAvatar());
 		}
@@ -104,8 +119,10 @@ public class UserServiceImplementation implements UsersService {
 	
 	private UserEntity convertToEntity(UserBoundary boundary) {
 		UserEntity entity = new UserEntity();
-		entity.setUserID(boundary.getUserID());
-		entity.setRole(this.marshall(boundary.getRole()));
+		//entity.setUserID(boundary.getUserID());
+		entity.setSpace(boundary.getUserID().getSpace());
+		entity.setEmail(boundary.getUserID().getEmail());
+		entity.setRole(boundary.getRole().toString());
 		entity.setUsername(boundary.getUsername());
 		entity.setAvatar(boundary.getAvatar());
 
@@ -114,14 +131,23 @@ public class UserServiceImplementation implements UsersService {
 	
 	private UserBoundary convertToBoundary(UserEntity entity) {
 		UserBoundary boundary = new UserBoundary();
-		boundary.setUserID(entity.getUserID());
-		boundary.setRole(this.unmarshall(entity.getRole(), UserRole.class));
+		//String[] tokens = getTokens(entity.getUserID());
+		//boundary.setUserID(new UserId(tokens[0], tokens[1]));
+		boundary.setUserID(new UserId(entity.getSpace(), entity.getEmail()));
+		boundary.setRole(entity.getRole());
 		boundary.setUserName(entity.getUsername());
-		boundary.setAvatar(boundary.getAvatar());
+		boundary.setAvatar(entity.getAvatar());
 		
 		return boundary;
 	}
 	
+	/*private String[] getTokens(String userID) {
+		String[] tokens = new String[2];
+		tokens = userID.split("\\|");
+		System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
+		return tokens;
+	}
+
 	private String marshall(Object value) {
 		try {
 			return this.jackson
@@ -138,6 +164,6 @@ public class UserServiceImplementation implements UsersService {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
+	}*/
 
 }

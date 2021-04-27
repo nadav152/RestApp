@@ -10,38 +10,64 @@ import twins.additionalClasses.UserId;
 /*
 USERS_TABLE
 
-USERNAME <PK>      | AVATAR				(ROLE might be added) 
-============================
-VARCHAR(255)       | VARCHAR(255)
+      
+USERID <PK>  | ROLE          | USERNAME        | AVATAR         
+===========================================================
+VARCHAR(255) | VARCHAR(255)  | VARCHAR(255)    |  VARCHAR(255)     
 */
+
 @Entity
 @Table(name="USERS_TABLE")
 public class UserEntity {
-	private UserId userID;
+	/*
+	 * need to fix userid string to contain the space and email.
+	 * last failure happened at handler.save.
+	 */
+	//private String userID;
+	private String Space;
+	private String Email;
 	private String role;
 	private String username;
 	private String avatar;
 	
 	
 	public UserEntity() {
-		this.userID = new UserId();
+		
 	}
-	
-	@Transient
-	public UserId getUserID() {
+	/*	
+	@Id
+	public String getUserID() {
 		return userID;
 	}
-	@Transient
-	public void setUserID(UserId userID) {
-		this.userID = userID;
+	
+	public void setUserID(UserId userId) {
+		this.userID = userId.getSpace()+ "|" +userId.getEmail();
 	}
+	*/
+	@Id
+	public String getEmail() {
+		return this.Email;
+	}
+	
+	public void setEmail(String email) {
+		this.Email = email;
+	}
+	
+	public String getSpace() {
+		return this.Space;
+	}
+	
+	public void setSpace(String space) {
+		this.Space = space;
+	}
+	
 	public String getRole() {
 		return role;
 	}
 	public void setRole(String role) {
 		this.role = role;
 	}
-	@Id
+	
 	public String getUsername() {
 		return username;
 	}

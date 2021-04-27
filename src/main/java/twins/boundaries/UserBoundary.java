@@ -13,12 +13,13 @@ public class UserBoundary {
 
 	
 	public UserBoundary() {
-		
+		this.userID = new UserId();
 	}
 
 	public UserBoundary(String space, String email, UserRole role, String username, String avatar) {
 		this();
-		this.userID = new UserId(space, email);
+		this.userID.setSpace(space);
+		this.userID.setEmail(email);
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
@@ -40,8 +41,13 @@ public class UserBoundary {
 		return role;
 	}
 
-	public void setRole(UserRole role) {
-		this.role = role;
+	public void setRole(String role) {
+		if (role.equals("PLAYER"))
+			this.role = UserRole.PLAYER;
+		if (role.equals("MANAGER"))
+			this.role = UserRole.MANAGER;
+		if (role.equals("ADMIN"))
+			this.role = UserRole.ADMIN;		
 	}
 
 	public String getUsername() {
