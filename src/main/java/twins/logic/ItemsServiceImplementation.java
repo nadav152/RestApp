@@ -59,6 +59,7 @@ public class ItemsServiceImplementation implements ItemsService {
 
 		// 3. generate ID + timestamp
 		entity.setId(UUID.randomUUID().toString());
+		entity.setSpace(userSpace);
 		entity.setCreatedTimestamp(new Date());
 
 		// 4. set dummy to a constant of the project
@@ -84,7 +85,7 @@ public class ItemsServiceImplementation implements ItemsService {
 			// UPDATE
 			this.itemHandler.save(updatedEntity);
 		} else {
-			throw new RuntimeException("message could not be found");
+			throw new RuntimeException("Item could not be found");
 		}
 
 		return update;
@@ -99,8 +100,9 @@ public class ItemsServiceImplementation implements ItemsService {
 		List<ItemBoundary> rv = new ArrayList<>();
 		for (ItemEntity entity : allEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-			if (boundary.getCreatedBy().getUserID().getSpace() == userSpace
-					&& boundary.getCreatedBy().getUserID().getEmail() == userEmail)
+	
+			if (boundary.getCreatedBy().getUserID().getSpace().equals(userSpace)
+					&& boundary.getCreatedBy().getUserID().getEmail().equals(userEmail))
 				rv.add(boundary);
 		}
 		return rv;

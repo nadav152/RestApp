@@ -33,17 +33,27 @@ public class ItemBoundary {
 		this.location = location;
 	}
 	
-	public ItemBoundary(String space, String id, ItemBoundary IDlessItem) {
+	public ItemBoundary(String space,String type, String name, boolean active, UserBoundary createdBy, Location location) {
 		this();
-		this.itemID = new ItemId(space, id);
-		this.type = IDlessItem.getType();
-		System.out.println(IDlessItem.getType());
-		this.name = IDlessItem.getName();
-		this.active = IDlessItem.isActive();
-		this.createdBy = IDlessItem.getCreatedBy();
-		this.location = IDlessItem.getLocation();
-		this.createdTimestamp = IDlessItem.getCreatedTimestamp();
+		this.itemID = new ItemId(space, "NaN");
+		this.type = type;
+		this.name = name;
+		this.active = active;
+		this.createdBy = createdBy;
+		this.location = location;
 	}
+	
+//	public ItemBoundary(String space, String id, ItemBoundary IDlessItem) {
+//		this();
+//		this.itemID = new ItemId(space, id);
+//		this.type = IDlessItem.getType();
+//		System.out.println(IDlessItem.getType());
+//		this.name = IDlessItem.getName();
+//		this.active = IDlessItem.isActive();
+//		this.createdBy = IDlessItem.getCreatedBy();
+//		this.location = IDlessItem.getLocation();
+//		this.createdTimestamp = IDlessItem.getCreatedTimestamp();
+//	}
 	
 	@Override
 	public String toString() {
