@@ -1,8 +1,7 @@
 package twins.data;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,9 +12,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import twins.additionalClasses.Item;
 import twins.additionalClasses.OperationId;
-import twins.additionalClasses.User;
 
 /*
 OPERATION_TABLE
@@ -31,13 +28,13 @@ OPERATION_ID	       | VARCHAR(255)  | VARCHAR(255)              //TODO add more 
 @Table(name = "OPERATION_TABLE")
 public class OperationEntity {
 	private String operationId;
-	private String operationSpace;
+	//private String operationSpace;
 	private String type;
 	private String item;
 	private Date createdTimestamp;
 	private String invokedBy;
 	private String operationAttributes;
-	private String groupName;
+
 	
 	
 	
@@ -64,14 +61,17 @@ public class OperationEntity {
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-	
-	public String getOperationSpace() {
+	@Transient
+	public void setOperationId(OperationId operationId) {
+		this.operationId = operationId.getSpace()+ "|" + operationId.getId();;
+	}
+	/*public String getOperationSpace() {
 		return this.operationSpace;
 	}
 	
 	public void setOperationSpace(String operationSpace) {
 		this.operationSpace = operationSpace;
-	}
+	}*/
 	
 	public String getType() {
 		return type;
@@ -116,12 +116,5 @@ public class OperationEntity {
 		this.operationAttributes = operationAttributes;
 	}
 	
-	public String getGroupName() {
-		return groupName;
-	}
-	
-	public void setGroupName(String groupName) {
-		this.groupName = groupName;
-	}
 
 }

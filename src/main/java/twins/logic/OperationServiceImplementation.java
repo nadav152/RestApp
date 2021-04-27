@@ -1,7 +1,6 @@
 package twins.logic;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,9 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import twins.additionalClasses.OperationId;
 import twins.additionalClasses.User;
-import twins.additionalClasses.UserId;
 import twins.boundaries.OperationBoundary;
-import twins.boundaries.UserBoundary;
 import twins.dal.OperationHandler;
 import twins.data.OperationEntity;
 import twins.additionalClasses.Item;
@@ -29,7 +26,7 @@ public class OperationServiceImplementation implements OperationsService {
 
 	private OperationHandler operationHandler;
 	private ObjectMapper jackson;
-	private String groupName;
+	private String space;
 	
 	@Autowired
 	public OperationServiceImplementation(OperationHandler operationHandler) {
@@ -41,31 +38,33 @@ public class OperationServiceImplementation implements OperationsService {
 	// have spring initialize the groupName value using property: spring.application.name 
 	// or generate default value if property does not exist: "2021b.integ"
 	@Value("${spring.application.name:2021b.integ}")
-	public void setDummy(String groupName) {
-		this.groupName = groupName;
+	public void Space(String space) {
+		this.space = space;
 	}
 	
 	// have spring invoke this operation after initializing Spring bean
 	@PostConstruct
 	public void init() {
-		System.err.println("groupName: " + this.groupName);
+		System.err.println("space: " + this.space);
 	}
 
 	//return JSON obj, after creating new id and updating time stamp
 	@Override					
 	@Transactional
-	public Object invokeOperation(OperationBoundary operation) {
+	public OperationBoundary invokeOperation(OperationBoundary operation) {
+		
+		if(operation.getType() == null)
+			throw new RuntimeException("operation Type must not be null");
 		if(operation.getItem() == null)
-			throw new RuntimeException("operation item must not be null");
+			throw new RuntimeException("operation Item must not be null");
+		if(operation.getItem().getItemId() == null)
+			throw new RuntimeException("oper ItemId must not be null");
+		if(operation.getInvokedBy() == null)
+			throw new RuntimeException("operation Item must not be null");
 		
 		OperationEntity oe = this.convertToEntity(operation);
-
-		oe.setOperationId(UUID.randomUUID().toString());
-		oe.setCreatedTimestamp(new Date());
-		oe.setGroupName(this.groupName);
-		
+				
 		oe = this.operationHandler.save(oe);
-		System.err.println(oe);
 		return this.convertToBoundary(oe);
 	}
 
@@ -73,17 +72,18 @@ public class OperationServiceImplementation implements OperationsService {
 	@Override
 	@Transactional
 	public OperationBoundary invokeAsynchronousOperation(OperationBoundary operation) { 
+		if(operation.getType() == null)
+			throw new RuntimeException("operation Type must not be null");
 		if(operation.getItem() == null)
-			throw new RuntimeException("operation item must not be null");
+			throw new RuntimeException("operation Item must not be null");
+		if(operation.getItem().getItemId() == null)
+			throw new RuntimeException("oper ItemId must not be null");
+		if(operation.getInvokedBy() == null)
+			throw new RuntimeException("operation Item must not be null");
 		
 		OperationEntity oe = this.convertToEntity(operation);
-		
-		oe.setOperationId(UUID.randomUUID().toString());
-		oe.setCreatedTimestamp(new Date());
-		oe.setGroupName(this.groupName);
-		
+				
 		oe = this.operationHandler.save(oe);
-		
 		return this.convertToBoundary(oe);
 	}
 
@@ -93,7 +93,6 @@ public class OperationServiceImplementation implements OperationsService {
 	public List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail) {
 		Iterable<OperationEntity> allEntities = this.operationHandler.findAll();
 		List<OperationBoundary> operationBoundaries = new ArrayList<>(); 
-		System.err.println("in get all oper");
 		for (OperationEntity operation : allEntities) {
 			operationBoundaries.add(this.convertToBoundary(operation));
 		}
@@ -112,7 +111,8 @@ public class OperationServiceImplementation implements OperationsService {
 	//convert entity-> boundary
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
 		OperationBoundary ob = new OperationBoundary();
-		ob.setOperationId(new OperationId(oe.getOperationSpace(),oe.getOperationId()));
+		String [] tokens = getTokens(oe.getOperationId());
+		ob.setOperationId(new OperationId(tokens[0],tokens[1]));
 		ob.setType(oe.getType());
 		ob.setCreatedTimestamp(oe.getCreatedTimestamp());
 		ob.setItem(this.unmarshall(oe.getItem(), Item.class));
@@ -127,8 +127,9 @@ public class OperationServiceImplementation implements OperationsService {
 	//convert boundary -> entity
 	private OperationEntity convertToEntity(OperationBoundary operation) {
 		OperationEntity entity = new OperationEntity();
-		entity.setOperationId(operation.getOperationId().getId());
-		entity.setOperationSpace(operation.getOperationId().getSpace());
+		operation.getOperationId().setSpace(space);
+		operation.getOperationId().setId(UUID.randomUUID().toString());
+		entity.setOperationId(operation.getOperationId());
 		entity.setType(operation.getType());
 		entity.setItem(this.marshall(operation.getItem()));
 		entity.setCreatedTimestamp(operation.getCreatedTimestamp());
@@ -156,6 +157,13 @@ public class OperationServiceImplementation implements OperationsService {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private String[] getTokens(String userID) {
+		String[] tokens = new String[2];
+		tokens = userID.split("\\|");
+		System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
+		return tokens;
 	}
 
 }

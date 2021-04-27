@@ -7,7 +7,6 @@ import java.util.Map;
 import twins.additionalClasses.Item;
 import twins.additionalClasses.OperationId;
 import twins.additionalClasses.User;
-import twins.data.OperationEntity;
 
 public class OperationBoundary {
 	private OperationId operationId;

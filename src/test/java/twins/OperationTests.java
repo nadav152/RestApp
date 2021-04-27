@@ -2,6 +2,9 @@ package twins;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
+import java.util.Date;
+
 import javax.annotation.PostConstruct;
 
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +14,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 
+import twins.additionalClasses.Item;
+import twins.additionalClasses.OperationId;
+import twins.additionalClasses.User;
 import twins.boundaries.OperationBoundary;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -42,17 +48,24 @@ public class OperationTests {
 	@AfterEach
 	public void tearDown() {
 		/// clean database
-		this.restTemplate
-			.delete(this.url); 
+		//TODO fix to the right url
+		//this.restTemplate
+		//	.delete(this.url); 
 	}
 	
 	@Test
 	public void TestInvokeOperatiton() throws Exception{
 		OperationBoundary ob = new OperationBoundary();
 		ob.setType("check");
+		ob.setItem(new Item("Pool", "124"));
+		ob.setOperationId(new OperationId("Sector 12", "de938525-f579-4e33-ae40-1def64cb4bdb"));
+		ob.setOperationAttributes(Collections.singletonMap("test", "demo"));
+		ob.setInvokedBy(new User("Sector 12", "EfiRefaelo@gmail.com"));
+		ob.setCreatedTimestamp(new Date());
 		OperationBoundary response = this.restTemplate
 				.postForObject(this.url, ob, OperationBoundary.class);
 		assertThat(response.getType())
 			.isEqualTo("check");
+		System.err.println("***"+response);
 	}
 }
