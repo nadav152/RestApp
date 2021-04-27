@@ -30,7 +30,6 @@ OPERATION_ID	       | VARCHAR(255)  | VARCHAR(255)              //TODO add more 
 @Entity
 @Table(name = "OPERATION_TABLE")
 public class OperationEntity {
-	//private OperationId opId;
 	private String operationId;
 	private String operationSpace;
 	private String type;
@@ -65,11 +64,11 @@ public class OperationEntity {
 	public void setOperationId(String operationId) {
 		this.operationId = operationId;
 	}
-	@Transient
+	
 	public String getOperationSpace() {
 		return this.operationSpace;
 	}
-	@Transient
+	
 	public void setOperationSpace(String operationSpace) {
 		this.operationSpace = operationSpace;
 	}
