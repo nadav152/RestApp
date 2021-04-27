@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import twins.data.UserEntity;
-import twins.data.UserRole;
 import twins.dal.UserHandler;
 import twins.additionalClasses.UserId;
 import twins.boundaries.UserBoundary;
@@ -23,7 +22,7 @@ import twins.boundaries.UserBoundary;
 @Service
 public class UserServiceImplementation implements UsersService {
 	private UserHandler userHandler;
-	private ObjectMapper jackson;
+	//private ObjectMapper jackson;
 	private String space;
 	
 	@Autowired	
@@ -58,10 +57,7 @@ public class UserServiceImplementation implements UsersService {
 			throw new RuntimeException("Email attribute is not valid");
 		}
 		UserEntity entity = this.convertToEntity(boundary);
-		entity.setSpace(space);
-		entity.setEmail(boundary.getUserID().getEmail());
 		entity = this.userHandler.save(entity);
-		//System.err.println(entity.getSpace() + " before convert after save");
 				
 		return this.convertToBoundary(entity);
 	}
@@ -119,9 +115,8 @@ public class UserServiceImplementation implements UsersService {
 	
 	private UserEntity convertToEntity(UserBoundary boundary) {
 		UserEntity entity = new UserEntity();
-		//entity.setUserID(boundary.getUserID());
-		entity.setSpace(boundary.getUserID().getSpace());
-		entity.setEmail(boundary.getUserID().getEmail());
+		entity.setUserID(boundary.getUserID());
+		entity.setUserID(new UserId(space, boundary.getUserID().getEmail()));
 		entity.setRole(boundary.getRole().toString());
 		entity.setUsername(boundary.getUsername());
 		entity.setAvatar(boundary.getAvatar());
@@ -131,9 +126,8 @@ public class UserServiceImplementation implements UsersService {
 	
 	private UserBoundary convertToBoundary(UserEntity entity) {
 		UserBoundary boundary = new UserBoundary();
-		//String[] tokens = getTokens(entity.getUserID());
-		//boundary.setUserID(new UserId(tokens[0], tokens[1]));
-		boundary.setUserID(new UserId(entity.getSpace(), entity.getEmail()));
+		String[] tokens = getTokens(entity.getUserID());
+		boundary.setUserID(new UserId(tokens[0], tokens[1]));
 		boundary.setRole(entity.getRole());
 		boundary.setUserName(entity.getUsername());
 		boundary.setAvatar(entity.getAvatar());
@@ -141,29 +135,10 @@ public class UserServiceImplementation implements UsersService {
 		return boundary;
 	}
 	
-	/*private String[] getTokens(String userID) {
+	private String[] getTokens(String userID) {
 		String[] tokens = new String[2];
 		tokens = userID.split("\\|");
-		System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
 		return tokens;
 	}
-
-	private String marshall(Object value) {
-		try {
-			return this.jackson
-				.writeValueAsString(value);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 	
-	private <T> T unmarshall(String json, Class<T> requiredType) {
-		try {
-			return this.jackson
-				.readValue(json, requiredType);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}*/
-
 }

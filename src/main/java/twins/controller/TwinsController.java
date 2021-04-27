@@ -10,14 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import twins.additionalClasses.Item;
-import twins.additionalClasses.Location;
+
 import twins.additionalClasses.NewUserDetails;
-import twins.additionalClasses.User;
 import twins.boundaries.ItemBoundary;
 import twins.boundaries.OperationBoundary;
 import twins.boundaries.UserBoundary;
-import twins.data.UserRole;
 import twins.logic.ItemsService;
 import twins.logic.OperationsService;
 import twins.logic.UsersService;

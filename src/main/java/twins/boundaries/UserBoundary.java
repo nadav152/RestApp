@@ -1,7 +1,6 @@
 package twins.boundaries;
 
 import twins.additionalClasses.UserId;
-import twins.data.UserEntity;
 import twins.data.UserRole;
 
 
