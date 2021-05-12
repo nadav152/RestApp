@@ -1,32 +1,32 @@
 package twins.additionalClasses;
 
 public class Location {
-	private double x;
-	private double y;
+	private double lat;
+	private double lng;
 	
 	
 	public Location() {
 		
 	}
-	public Location(double x, double y) {
+	public Location(double lat, double lng) {
 		super();
-		this.x = x;
-		this.y = y;
+		this.lat = lat;
+		this.lng = lng;
 	}
 	public double getX() {
-		return x;
+		return lat;
 	}
 	public void setX(double x) {
-		this.x = x;
+		this.lat = x;
 	}
 	public double getY() {
-		return y;
+		return lng;
 	}
 	public void setY(double y) {
-		this.y = y;
+		this.lng = y;
 	}
 	@Override
 	public String toString() {
-		return "Location [x=" + x + ", y=" + y + "]";
+		return "Location [lat=" + lat + ", lng=" + lng + "]";
 	}
 }

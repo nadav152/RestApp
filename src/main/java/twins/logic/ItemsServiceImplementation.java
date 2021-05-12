@@ -14,8 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import twins.additionalClasses.ItemId;
 import twins.additionalClasses.Location;
+import twins.additionalClasses.UserId;
 import twins.boundaries.ItemBoundary;
-import twins.boundaries.UserBoundary;
 import twins.dal.ItemHandler;
 import twins.data.ItemEntity;
 
@@ -24,7 +24,7 @@ public class ItemsServiceImplementation implements ItemsService {
 
 	private ItemHandler itemHandler;
 	private ObjectMapper jackson;
-	private String countryClub;
+	private String space;
 
 	@Autowired
 	public ItemsServiceImplementation(ItemHandler itemHandler) {
@@ -37,33 +37,36 @@ public class ItemsServiceImplementation implements ItemsService {
 	// spring.application.name
 	// or generate default value if property does not exist: "dummyValue"
 	@Value("${spring.application.name:countryClubValue}")
-	public void setDummy(String countryClub) {
-		this.countryClub = countryClub;
+	public void setDummy(String space) {
+		this.space = space;
 	}
 
 	// have spring invoke this operation after initializing Spring bean
 	@PostConstruct
 	public void init() {
-		System.err.println("dummy: " + this.countryClub);
+		System.err.println("dummy: " + this.space);
 	}
 
 	@Override
 	public ItemBoundary createItem(String userSpace, String userEmail, ItemBoundary item) {
 		// 1. validate input - make sure message is not null
-		if (item == null || item.getType() == null) {
-			throw new RuntimeException("Item must not be null");
-		}
-
+		if (item == null || item.getType() == null) 
+			throw new RuntimeException("Item and item type must not be null");
+		
+		if (item.getName() == null || item.getName().equals("")) 
+			throw new RuntimeException("Item name must not be null or empty");
+		
+		item.setCreatedBy(new UserId(userSpace, userEmail));
+		
 		// 2. boundary -> entity
 		ItemEntity entity = this.convertToEntity(item);
 
 		// 3. generate ID + timestamp
 		entity.setId(UUID.randomUUID().toString());
-		entity.setSpace(userSpace);
 		entity.setCreatedTimestamp(new Date());
 
 		// 4. set dummy to a constant of the project
-		entity.setCountryClub(this.countryClub);
+		entity.setSpace(this.space);
 
 		// 5. INSERT to database
 		entity = this.itemHandler.save(entity);
@@ -78,7 +81,7 @@ public class ItemsServiceImplementation implements ItemsService {
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
 		if (existing.isPresent()) {
 			update.setItemID(new ItemId(existing.get().getSpace(), existing.get().getId()));
-			update.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserBoundary.class));
+			update.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserId.class));
 			update.setCreatedTimestamp(existing.get().getCreatedTimestamp());
 			ItemEntity updatedEntity = this.convertToEntity(update);
 
@@ -101,8 +104,8 @@ public class ItemsServiceImplementation implements ItemsService {
 		for (ItemEntity entity : allEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
 	
-			if (boundary.getCreatedBy().getUserID().getSpace().equals(userSpace)
-					&& boundary.getCreatedBy().getUserID().getEmail().equals(userEmail))
+//			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
+//					&& boundary.getCreatedBy().getEmail().equals(userEmail))
 				rv.add(boundary);
 		}
 		return rv;
@@ -132,9 +135,9 @@ public class ItemsServiceImplementation implements ItemsService {
 		boundary.setType(entity.getType());
 		boundary.setName(entity.getName());
 		boundary.setActive(entity.isActive());
-		boundary.setCreatedBy(this.unmarshall(entity.getCreatedBy(), UserBoundary.class));
+		boundary.setCreatedBy(this.unmarshall(entity.getCreatedBy(), UserId.class));
 		boundary.setLocation(this.unmarshall(entity.getLocation(), Location.class));
-
+		
 		boundary.setCreatedTimestamp(entity.getCreatedTimestamp());
 		String details = entity.getItemAttributes();
 		// use jackson for unmarshalling JSON --> Map
@@ -146,7 +149,6 @@ public class ItemsServiceImplementation implements ItemsService {
 	private ItemEntity convertToEntity(ItemBoundary boundary) {
 		ItemEntity entity = new ItemEntity();
 		entity.setId(boundary.getItemID().getID());
-		entity.setSpace(boundary.getItemID().getSpace());
 		entity.setType(boundary.getType());
 		entity.setName(boundary.getName());
 		entity.setActive(boundary.isActive());

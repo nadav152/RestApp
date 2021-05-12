@@ -30,7 +30,6 @@ public class ItemEntity {
 	private String createdBy;
 	private String location;
 	private String itemAttributes;
-	private String countryClub;
 
 	
 	public ItemEntity() {
@@ -79,14 +78,6 @@ public class ItemEntity {
 		this.active = active;
 	}
 	
-	public String getCountryClub() {
-		return countryClub;
-	}
-
-	public void setCountryClub(String countryClub) {
-		this.countryClub = countryClub;
-	}
-
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="MESSAGE_TIMESTAMP") //  set column name: MESSAGE_TIMESTAMP
 	public Date getCreatedTimestamp() {
