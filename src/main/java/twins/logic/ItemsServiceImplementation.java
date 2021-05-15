@@ -9,6 +9,9 @@ import java.util.UUID;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,7 +23,7 @@ import twins.dal.ItemHandler;
 import twins.data.ItemEntity;
 
 @Service
-public class ItemsServiceImplementation implements ItemsService {
+public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	private ItemHandler itemHandler;
 	private ObjectMapper jackson;
@@ -78,6 +81,10 @@ public class ItemsServiceImplementation implements ItemsService {
 	@Override
 	public ItemBoundary updateItem(String userSpace, String userEmail, String itemSpace, String itemId,
 			ItemBoundary update) {
+		
+		if(!userSpace.equals("Manager"))
+			return update;
+		
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
 		if (existing.isPresent()) {
 			update.setItemID(new ItemId(existing.get().getSpace(), existing.get().getId()));
@@ -93,7 +100,32 @@ public class ItemsServiceImplementation implements ItemsService {
 
 		return update;
 	}
+	
+	@Override
+	@Transactional(readOnly = true) // handle race condition
+	public List<ItemBoundary> getAllItems(String userSpace, String userEmail, int page, int size) {
+		// BEGIN new tx (transaction)
+		
+		Page<ItemEntity> entitiesPage = 
+				this.itemHandler.findAll(PageRequest.of(page, size, Direction.DESC,"name"));
+		
+		List<ItemEntity> pagedEntities = entitiesPage.getContent();
+		List<ItemBoundary> rv = new ArrayList<>();
+		
+		
+		for (ItemEntity entity : pagedEntities) {
+			ItemBoundary boundary = this.convertToBoundary(entity);
+			
+//			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
+//					&& boundary.getCreatedBy().getEmail().equals(userEmail))
+			
+			if(boundary.isActive() || userSpace.equals("Manager"))
+				rv.add(boundary);
+		}
+		return rv;
+	}
 
+	@Deprecated
 	@Override
 	@Transactional(readOnly = true) // handle race condition
 	public List<ItemBoundary> getAllItems(String userSpace, String userEmail) {
@@ -175,5 +207,4 @@ public class ItemsServiceImplementation implements ItemsService {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

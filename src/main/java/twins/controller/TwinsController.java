@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -15,6 +16,7 @@ import twins.additionalClasses.NewUserDetails;
 import twins.boundaries.ItemBoundary;
 import twins.boundaries.OperationBoundary;
 import twins.boundaries.UserBoundary;
+import twins.logic.ExtendedItemsService;
 import twins.logic.ItemsService;
 import twins.logic.OperationsService;
 import twins.logic.UsersService;
@@ -31,12 +33,12 @@ import twins.logic.UsersService;
 @RestController
 public class TwinsController {
 	private UsersService usersService;
-	private ItemsService itemsService;
+	private ExtendedItemsService itemsService;
 	private OperationsService operationsService;
 	
 	
 	@Autowired
-	public TwinsController(UsersService usersService,ItemsService itemsService,OperationsService operationsService) {
+	public TwinsController(UsersService usersService,ExtendedItemsService itemsService,OperationsService operationsService) {
 		this.usersService = usersService;
 		this.itemsService = itemsService;
 		this.operationsService = operationsService;
@@ -123,9 +125,13 @@ public class TwinsController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public ItemBoundary[] retrieveAllItem (
 			@PathVariable("userSpace") String userSpace,
-			@PathVariable("userEmail") String userEmail){
+			@PathVariable("userEmail") String userEmail,
+	
+			@RequestParam(name="size", required = false, defaultValue = "20") int  size,
+			@RequestParam(name="page", required = false, defaultValue = "0") int page){
+		
 		List<ItemBoundary> allItems = this.
-				itemsService.getAllItems(userSpace, userEmail);
+				itemsService.getAllItems(userSpace, userEmail,page,size);
 		
 		return allItems.toArray(new ItemBoundary[0]);
 	}
