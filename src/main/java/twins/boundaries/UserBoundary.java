@@ -48,6 +48,9 @@ public class UserBoundary {
 		if (role.equals("ADMIN"))
 			this.role = UserRole.ADMIN;		
 	}
+	public void setRole(UserRole role) {
+		this.role = role;		
+	}
 
 	public String getUsername() {
 		return username;

@@ -53,6 +53,7 @@ public class UserServiceImplementation implements UsersService {
 		if (boundary.getAvatar()=="") {
 			throw new RuntimeException("Avatar attribute must not be an empty string");
 		}
+		System.err.println(boundary.getUserID().getSpace() + "||" + boundary.getUserID().getEmail());
 		if (!(boundary.getUserID().getEmail().contains("@"))) {
 			throw new RuntimeException("Email attribute is not valid");
 		}
