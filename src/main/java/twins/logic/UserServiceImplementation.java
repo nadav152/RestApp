@@ -66,7 +66,7 @@ public class UserServiceImplementation implements UsersService {
 	@Override											//maybe required catching the exception
 	@Transactional(readOnly = true)
 	public UserBoundary login(String userSpace, String userEmail) {
-		Optional<UserEntity> ue = this.userHandler.findById(userEmail); 
+		Optional<UserEntity> ue = this.userHandler.findById(userSpace + "|" + userEmail); 
 		UserBoundary ub = new UserBoundary();
 		if (ue.isPresent()) {
 			ub.setUserID(new UserId(userSpace,userEmail));
@@ -84,7 +84,8 @@ public class UserServiceImplementation implements UsersService {
 	@Override
 	@Transactional //(readOnly = false)
 	public UserBoundary updateUser(String userSpace, String userEmail, UserBoundary update) {
-		Optional<UserEntity> oue = this.userHandler.findById(userEmail);
+		System.out.println(update.getUserID().getSpace()+ "|" + update.getUserID().getEmail());
+		Optional<UserEntity> oue = this.userHandler.findById(update.getUserID().getSpace()+ "|" + update.getUserID().getEmail());
 		if (oue.isPresent()) {	//updating existing user.
 			update.setUserID(userSpace, userEmail);
 			UserEntity updatedEntity = this.convertToEntity(update);	

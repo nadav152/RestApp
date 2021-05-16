@@ -1,6 +1,7 @@
 package twins;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import javax.annotation.PostConstruct;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,6 @@ public class UserTests {
 		userDetails.setRole(UserRole.MANAGER);
 		userDetails.setUsername("cowboy77");
 		userDetails.setAvatar("cb");
-		
 		UserBoundary response = this.restTemplate
 				.postForObject(this.url, userDetails, UserBoundary.class);
 		
@@ -66,31 +66,90 @@ public class UserTests {
 	
 	@Test 
 	public void testUpdateUserAndValidateTheDatabaseIsUpdated() {
-		// GIVEN the database contains a user
+		// Given the database contains a user
 		NewUserDetails userDetails = new NewUserDetails();
 		userDetails.setEmail("cowboy4life@gmail.com");
 		userDetails.setRole(UserRole.PLAYER);
 		userDetails.setUsername("cowboy11");
-		userDetails.setAvatar("cbn");
+		userDetails.setAvatar("cb");
 		
 		UserBoundary response = this.restTemplate
 			.postForObject(this.url, userDetails, UserBoundary.class);
 		
-		// WHEN I invoke PUT /messages/{messageId} and {"message":"new value"}
+		// When I invoke PUT /twins/users/{userSpace}/{userEmail} and {"avatar":"cbn"}
 		UserBoundary update = new UserBoundary();
-		update.setUserID(new UserId("cowboyEra","cowboy4life@gmail.com"));
+		update.setUserID(new UserId("2021b.Daniel.Aizenband","cowboy4life@gmail.com"));
 		update.setRole("PLAYER");
 		update.setUserName("cowboy11");
 		update.setAvatar("cbn");
+		System.out.println(response.getUserID().getSpace() + " " + response.getUserID().getEmail());
+		
 		this.restTemplate
 			.put(this.url + "/{userSpace}/{userEmail}", update, response.getUserID().getSpace(), response.getUserID().getEmail());
 		
-		// THEN the database message is updated
+		// Assert that the database user is updated
 		assertThat(this.restTemplate
-			.getForObject(this.url + "/{userSpace}/{userEmail}", UserBoundary.class, response.getUserID().getSpace(), response.getUserID().getEmail())
-			.getUserID())
+			.getForObject(this.url + "/login/{userSpace}/{userEmail}", UserBoundary.class, response.getUserID().getSpace(), response.getUserID().getEmail())
+			.getAvatar())
 		
-			.isEqualTo(update.getUserID())
-			.isNotEqualTo(response.getUserID());
+			.isEqualTo(update.getAvatar())
+			.isNotEqualTo(response.getAvatar());
+	}
+	
+	@Test 
+	public void testDeleteAllUsers() {
+		// Given the database contains 2 users
+		NewUserDetails userDetails = new NewUserDetails();
+		userDetails.setEmail("cowboy4life@gmail.com");
+		userDetails.setRole(UserRole.PLAYER);
+		userDetails.setUsername("cowboy11");
+		userDetails.setAvatar("cb");
+		UserBoundary response = this.restTemplate
+			.postForObject(this.url, userDetails, UserBoundary.class);
+		
+		userDetails.setEmail("indian4life@gmail.com");
+		userDetails.setRole(UserRole.MANAGER);
+		userDetails.setUsername("indian11");
+		userDetails.setAvatar("indi");		
+		response = this.restTemplate
+			.postForObject(this.url, userDetails, UserBoundary.class);
+		
+		// Assert that the array contains users and isn't empty.		
+		UserBoundary[] array = this.restTemplate
+				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+		assertThat(array.length).isNotEqualTo(0);
+		
+		// Delete all users.
+		this.restTemplate
+			.delete("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary.class, response.getUserID().getSpace(), response.getUserID().getEmail());
+		
+		// Assert that the array is empty after delete.
+		array = this.restTemplate
+				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+		assertThat(array.length).isEqualTo(0);
+		
+	}
+	@Test
+	public void testExportUsers() {
+		// Given the database contains 2 users
+		NewUserDetails userDetails = new NewUserDetails();
+		userDetails.setEmail("cowboy4life@gmail.com");
+		userDetails.setRole(UserRole.PLAYER);
+		userDetails.setUsername("cowboy11");
+		userDetails.setAvatar("cb");
+		UserBoundary response = this.restTemplate
+			.postForObject(this.url, userDetails, UserBoundary.class);
+		
+		userDetails.setEmail("indian4life@gmail.com");
+		userDetails.setRole(UserRole.MANAGER);
+		userDetails.setUsername("indian11");
+		userDetails.setAvatar("indi");		
+		response = this.restTemplate
+			.postForObject(this.url, userDetails, UserBoundary.class);
+			
+		// Assert that the array contains users and isn't empty.
+		UserBoundary[] array = this.restTemplate
+			.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+		assertThat(array.length).isNotEqualTo(0);
 	}
 }
