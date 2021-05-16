@@ -59,13 +59,29 @@ public class OperationTests {
 		ob.setType("check");
 		ob.setItem(new Item("Pool", "124"));
 		ob.setOperationId(new OperationId("Sector 12", "de938525-f579-4e33-ae40-1def64cb4bdb"));
-		ob.setOperationAttributes(Collections.singletonMap("test", "demo"));
+		//ob.setOperationAttributes(Collections.singletonMap("test", "demo"));
 		ob.setInvokedBy(new User("Sector 12", "EfiRefaelo@gmail.com"));
-		ob.setCreatedTimestamp(new Date());
+		//ob.setCreatedTimestamp(new Date());
 		OperationBoundary response = this.restTemplate
 				.postForObject(this.url, ob, OperationBoundary.class);
 		assertThat(response.getType())
 			.isEqualTo("check");
 		System.err.println("***"+response);
 	}
+	
+	@Test
+	public void TestInvokeAsynchorniousOperation() throws Exception{
+		OperationBoundary ob = new OperationBoundary();
+		ob.setType("check");
+		ob.setItem(new Item("Pool", "124"));
+		ob.setOperationId(new OperationId("Sector 12", "de938525-f579-4e33-ae40-1def64cb4bdb"));
+		ob.setInvokedBy(new User("Sector 12", "EfiRefaelo@gmail.com"));
+		OperationBoundary response = this.restTemplate
+				.postForObject(this.url + "/async", ob, OperationBoundary.class);
+		assertThat(response.getType())
+			.isEqualTo("check");
+		System.err.println("***"+response);
+
+	}
+	
 }

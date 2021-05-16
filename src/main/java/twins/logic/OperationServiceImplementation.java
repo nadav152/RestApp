@@ -1,5 +1,6 @@
 package twins.logic;
 
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,7 @@ public class OperationServiceImplementation implements OperationsService {
 		if(operation.getInvokedBy() == null)
 			throw new RuntimeException("operation Item must not be null");
 		
+		operation.setCreatedTimestamp(new Date());
 		OperationEntity oe = this.convertToEntity(operation);
 				
 		oe = this.operationHandler.save(oe);
@@ -81,6 +83,7 @@ public class OperationServiceImplementation implements OperationsService {
 		if(operation.getInvokedBy() == null)
 			throw new RuntimeException("operation Item must not be null");
 		
+		operation.setCreatedTimestamp(new Date());
 		OperationEntity oe = this.convertToEntity(operation);
 				
 		oe = this.operationHandler.save(oe);
@@ -104,7 +107,6 @@ public class OperationServiceImplementation implements OperationsService {
 	@Transactional
 	public void deleteAllOperations(String adminSpace, String adminEmail) {
 		this.operationHandler.deleteAll();
-		
 	}
 	
 	
@@ -162,7 +164,7 @@ public class OperationServiceImplementation implements OperationsService {
 	private String[] getTokens(String userID) {
 		String[] tokens = new String[2];
 		tokens = userID.split("\\|");
-		System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
+		//System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
 		return tokens;
 	}
 
