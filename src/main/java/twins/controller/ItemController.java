@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import twins.additionalClasses.Location;
+import twins.additionalClasses.UserId;
 import twins.boundaries.ItemBoundary;
 import twins.logic.ExtendedItemsService;
 import twins.logic.ItemsService;
@@ -44,6 +45,7 @@ public class ItemController {
 	public ItemBoundary createItem (@RequestBody ItemBoundary IDlessItem,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
+		
 		ItemBoundary itemboundary = this.itemsService.createItem(userSpace, userEmail, IDlessItem);
 		return itemboundary;
 	}
