@@ -105,21 +105,19 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	@Transactional(readOnly = true) // handle race condition
 	public List<ItemBoundary> getAllItems(String userSpace, String userEmail, int page, int size) {
 		// BEGIN new tx (transaction)
-		
-		Page<ItemEntity> entitiesPage = 
-				this.itemHandler.findAll(PageRequest.of(page, size, Direction.DESC,"name"));
-		
+
+		Page<ItemEntity> entitiesPage = this.itemHandler.findAll(PageRequest.of(page, size, Direction.DESC, "name"));
+
 		List<ItemEntity> pagedEntities = entitiesPage.getContent();
 		List<ItemBoundary> rv = new ArrayList<>();
-		
-		
+
 		for (ItemEntity entity : pagedEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-			
+
 //			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
 //					&& boundary.getCreatedBy().getEmail().equals(userEmail))
-			
-			if(boundary.isActive() || userSpace.equals("Manager"))
+
+			if (boundary.isActive() || userSpace.equals("Manager"))
 				rv.add(boundary);
 		}
 		return rv;
@@ -148,11 +146,12 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
 		if (existing.isPresent()) {
 			ItemEntity entity = existing.get();
-			return this.convertToBoundary(entity);
-		} else {
+			if (userSpace.equals("Manager") || entity.isActive())
+				return this.convertToBoundary(entity);
+			else
+				throw new RuntimeException("Item is not active");
+		} else
 			throw new RuntimeException("Item could not be found");
-		}
-		// TODO find out where to use user email and space
 	}
 
 	@Override
