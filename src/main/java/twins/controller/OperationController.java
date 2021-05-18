@@ -13,24 +13,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 import twins.boundaries.OperationBoundary;
-import twins.logic.OperationsService;
+import twins.logic.ExtendedOperationsService;
+//import twins.logic.OperationsService;
 
-// Save this file again
-/* LAST UPDATE: 22/4/21 19:00 p.m
-- Added a Constructor for the services.  
-- Added class OperationTest.
-- Added one test invokedOperation(doesn't work at the moment).
-- 
-*/
 
 
 @RestController
 public class OperationController {
-	private OperationsService operationsService;
+	private ExtendedOperationsService operationsService;
 	
 	
 	@Autowired
-	public OperationController(OperationsService operationsService) {
+	public OperationController(ExtendedOperationsService operationsService) {
 		this.operationsService = operationsService;
 	}
 		
@@ -73,8 +67,11 @@ public class OperationController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public OperationBoundary[] exportOperations (
 			@PathVariable("userSpace") String userSpace,
-			@PathVariable("userEmail") String userEmail){
-		List<OperationBoundary> allOp = this.operationsService.getAllOperations(userSpace, userEmail);
+			@PathVariable("userEmail") String userEmail,
+			@RequestParam(name="size", required = false, defaultValue = "20") int  size,
+			@RequestParam(name="page", required = false, defaultValue = "0") int page){
+		List<OperationBoundary> allOp = this.operationsService
+											.getAllOperations(userSpace, userEmail,page,size);
 		return allOp.toArray(new OperationBoundary[0]);
 	}
 }

@@ -10,6 +10,9 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,7 +71,10 @@ public class OperationServiceImplementation implements OperationsService {
 				
 		oe = this.operationHandler.save(oe);
 		return this.convertToBoundary(oe);
+		
 	}
+	
+	
 
 	//return JSON obj, after creating new id and updating time stamp
 	@Override
@@ -93,15 +99,30 @@ public class OperationServiceImplementation implements OperationsService {
 	//Create a list of all operations entities and convert them to boundaries
 	@Override
 	@Transactional (readOnly = true)
+	@Deprecated
 	public List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail) {
-		Iterable<OperationEntity> allEntities = this.operationHandler.findAll();
-		List<OperationBoundary> operationBoundaries = new ArrayList<>(); 
-		for (OperationEntity operation : allEntities) {
-			operationBoundaries.add(this.convertToBoundary(operation));
-		}
-		//TODO check about permissions 
-		return operationBoundaries;
+//		Iterable<OperationEntity> allEntities = this.operationHandler.findAll();
+//		List<OperationBoundary> operationBoundaries = new ArrayList<>(); 
+//		for (OperationEntity operation : allEntities) {
+//			operationBoundaries.add(this.convertToBoundary(operation));
+//		}
+//		//TODO check about permissions 
+//		return operationBoundaries;
+		throw new RuntimeException("depracted method");
 	}
+	 public List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail,
+			 										int page, int size){
+		Page<OperationEntity> entitiesPage = this.operationHandler.findAll(PageRequest.of(page, size, Direction.DESC, "createdTimestamp"));
+		
+		List<OperationEntity> pagedEntities = entitiesPage.getContent();
+		List<OperationBoundary> rv = new ArrayList<>();
+		for (OperationEntity operation : pagedEntities) {
+			OperationBoundary ob = this.convertToBoundary(operation);
+			if(ob.getInvokedBy() != null)
+				rv.add(ob);
+		}
+		return rv;
+	 }
 
 	@Override
 	@Transactional

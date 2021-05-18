@@ -7,6 +7,6 @@ import twins.boundaries.OperationBoundary;
 public interface OperationsService {
 	Object invokeOperation(OperationBoundary operation);
 	OperationBoundary invokeAsynchronousOperation(OperationBoundary operation);
-	List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail);
+	@Deprecated List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail);
 	void deleteAllOperations(String adminSpace, String adminEmail);
 }
