@@ -15,9 +15,15 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 
 import twins.additionalClasses.Item;
+import twins.additionalClasses.Location;
+import twins.additionalClasses.NewUserDetails;
 import twins.additionalClasses.OperationId;
 import twins.additionalClasses.User;
+import twins.additionalClasses.UserId;
+import twins.boundaries.ItemBoundary;
 import twins.boundaries.OperationBoundary;
+import twins.boundaries.UserBoundary;
+import twins.data.UserRole;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class OperationTests {
@@ -56,12 +62,16 @@ public class OperationTests {
 	@Test
 	public void TestInvokeOperatiton() throws Exception{
 		OperationBoundary ob = new OperationBoundary();
+		ItemBoundary ib = new ItemBoundary("space","124","Pool","blabla",true, new UserId("space","demo@gmail.com"), new Location(0, 0));
+		String urlCreateItem = "http://localhost:" + this.port +"/twins/items/"+ib.getCreatedBy().getSpace()+"/"+ib.getCreatedBy().getEmail();
+		ItemBoundary itemRes = this.restTemplate.postForObject(urlCreateItem, ib, ItemBoundary.class);
+		NewUserDetails nud = new NewUserDetails("demo@gmail.com" , UserRole.PLAYER, "dani", "abc");
+		String urlCreateUser = "http://localhost:" + this.port + "/twins/users";
+		UserBoundary userRes =this.restTemplate.postForObject(urlCreateUser, nud, UserBoundary.class);
 		ob.setType("check");
-		ob.setItem(new Item("Pool", "124"));
+		ob.setItem(new Item("Pool", itemRes.getItemID().getID()));
 		ob.setOperationId(new OperationId("Sector 12", "de938525-f579-4e33-ae40-1def64cb4bdb"));
-		//ob.setOperationAttributes(Collections.singletonMap("test", "demo"));
-		ob.setInvokedBy(new User("Sector 12", "EfiRefaelo@gmail.com"));
-		//ob.setCreatedTimestamp(new Date());
+		ob.setInvokedBy(new User(userRes.getUserId().getSpace(),userRes.getUserId().getEmail()));
 		OperationBoundary response = this.restTemplate
 				.postForObject(this.url, ob, OperationBoundary.class);
 		assertThat(response.getType())
@@ -71,16 +81,52 @@ public class OperationTests {
 	
 	@Test
 	public void TestInvokeAsynchorniousOperation() throws Exception{
+		
+		ItemBoundary ib = new ItemBoundary("space","124","Pool","blabla",true, new UserId("space","demo@gmail.com"), new Location(0, 0));
+		String urlCreateItem = "http://localhost:" + this.port +"/twins/items/"+ib.getCreatedBy().getSpace()+"/"+ib.getCreatedBy().getEmail();
+		ItemBoundary itemRes = this.restTemplate.postForObject(urlCreateItem, ib, ItemBoundary.class);
+		
+		String urlCreateUser = "http://localhost:" + this.port + "/twins/users";
+		//User1 a player who invoked the operations 
+		NewUserDetails nud1 = new NewUserDetails("demo@gmail.com" , UserRole.PLAYER, "dani", "abc");
+		UserBoundary userRes1 =this.restTemplate.postForObject(urlCreateUser, nud1, UserBoundary.class);
+		
+		//User2 an admin to check that the operations exists
+		NewUserDetails nud2 = new NewUserDetails("demo2@gmail.com" , UserRole.ADMIN, "Noam", "bla");
+		UserBoundary userRes2 =this.restTemplate.postForObject(urlCreateUser, nud2, UserBoundary.class);
+		
 		OperationBoundary ob = new OperationBoundary();
 		ob.setType("check");
-		ob.setItem(new Item("Pool", "124"));
+		ob.setItem(new Item("Pool", itemRes.getItemID().getID()));
 		ob.setOperationId(new OperationId("Sector 12", "de938525-f579-4e33-ae40-1def64cb4bdb"));
-		ob.setInvokedBy(new User("Sector 12", "EfiRefaelo@gmail.com"));
-		OperationBoundary response = this.restTemplate
+		ob.setInvokedBy(new User(userRes1.getUserId().getSpace(),userRes1.getUserId().getEmail()));
+		
+		OperationBoundary immediateResponse = this.restTemplate
 				.postForObject(this.url + "/async", ob, OperationBoundary.class);
-		assertThat(response.getType())
-			.isEqualTo("check");
-		System.err.println("***"+response);
+		
+		String urlForExport = "http://localhost:" + this.port +"/twins/admin/operations";
+		boolean flag = false;
+		while(!flag) {
+			try {
+				System.err.println("before getforobject\n");
+				OperationBoundary boundaryFromDB = this.restTemplate.
+						getForObject(urlForExport + "/"
+									+ userRes2.getUserId().getSpace()+
+									"/" +userRes2.getUserId().getEmail(),
+									OperationBoundary.class);
+				System.err.println("boundaries after get\n");
+				flag = true;
+			} catch (Exception e) {
+				try {
+					Thread.sleep(2000);
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+				flag = false;
+			}
+		}
+
+		System.err.println("*** DONE! ***\n");
 
 	}
 	
