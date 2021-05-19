@@ -5,6 +5,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.NamedQuery;
+
 import twins.additionalClasses.UserId;
 
 /*
@@ -18,9 +20,11 @@ VARCHAR(255) | VARCHAR(255)  | VARCHAR(255)    |  VARCHAR(255)
 
 @Entity
 @Table(name="USERS_TABLE")
+//@NamedQuery(name = "UserEntity.getAllUsers",
+//query = "select u from UserEntity u")
 public class UserEntity {
 	
-	private String userID;
+	private String userId;
 	private String role;
 	private String username;
 	private String avatar;
@@ -31,16 +35,16 @@ public class UserEntity {
 	}
 		
 	@Id
-	public String getUserID() {
-		return userID;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	@Transient
 	public void setUserID(UserId userId) {
-		this.userID = userId.getSpace()+ "|" +userId.getEmail();
+		this.userId = userId.getSpace()+ "|" +userId.getEmail();
 	}
 	
 	public String getRole() {

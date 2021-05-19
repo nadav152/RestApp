@@ -8,10 +8,11 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import twins.data.UserEntity;
 import twins.dal.UserHandler;
@@ -20,9 +21,8 @@ import twins.boundaries.UserBoundary;
 
 
 @Service
-public class UserServiceImplementation implements UsersService {
+public class UserServiceImplementation implements ExtendedUsersService {
 	private UserHandler userHandler;
-	//private ObjectMapper jackson;
 	private String space;
 	
 	@Autowired	
@@ -53,8 +53,7 @@ public class UserServiceImplementation implements UsersService {
 		if (boundary.getAvatar()=="") {
 			throw new RuntimeException("Avatar attribute must not be an empty string");
 		}
-		System.err.println(boundary.getUserID().getSpace() + "||" + boundary.getUserID().getEmail());
-		if (!(boundary.getUserID().getEmail().contains("@"))) {
+		if (!(boundary.getUserId().getEmail().contains("@"))) {
 			throw new RuntimeException("Email attribute is not valid");
 		}
 		UserEntity entity = this.convertToEntity(boundary);
@@ -69,9 +68,8 @@ public class UserServiceImplementation implements UsersService {
 		Optional<UserEntity> ue = this.userHandler.findById(userSpace + "|" + userEmail); 
 		UserBoundary ub = new UserBoundary();
 		if (ue.isPresent()) {
-			ub.setUserID(new UserId(userSpace,userEmail));
+			ub.setUserId(new UserId(userSpace,userEmail));
 			ub.setRole(ue.get().getRole());
-			//System.err.println(ub.getRole() + "in login");
 			ub.setUserName(ue.get().getUsername());
 			ub.setAvatar(ue.get().getAvatar());
 		}
@@ -84,10 +82,9 @@ public class UserServiceImplementation implements UsersService {
 	@Override
 	@Transactional //(readOnly = false)
 	public UserBoundary updateUser(String userSpace, String userEmail, UserBoundary update) {
-		System.out.println(update.getUserID().getSpace()+ "|" + update.getUserID().getEmail());
-		Optional<UserEntity> oue = this.userHandler.findById(update.getUserID().getSpace()+ "|" + update.getUserID().getEmail());
+		Optional<UserEntity> oue = this.userHandler.findById(update.getUserId().getSpace()+ "|" + update.getUserId().getEmail());
 		if (oue.isPresent()) {	//updating existing user.
-			update.setUserID(userSpace, userEmail);
+			update.setUserId(userSpace, userEmail);
 			UserEntity updatedEntity = this.convertToEntity(update);	
 			this.userHandler.save(updatedEntity);
 		}
@@ -99,13 +96,23 @@ public class UserServiceImplementation implements UsersService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail) {
-		Iterable<UserEntity> allEntities = this.userHandler.findAll();
-		List<UserBoundary> userBoundaries = new ArrayList<>(); 
-		for (UserEntity entity : allEntities) {
-			userBoundaries.add(this.convertToBoundary(entity));
+	public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail, int size, int page) {
+		String UserId = adminSpace+"|"+adminEmail;
+		Page<UserEntity> entitiesPage = this.userHandler.findAll(PageRequest.of(page, size, Direction.DESC, "UserId"));
+		System.err.println("******************** " + adminSpace +" 1 "+ adminEmail);
+		List<UserEntity> content = entitiesPage.getContent(); 
+		List<UserBoundary> boundaries = new ArrayList<>();
+		System.err.println("******************** " + adminSpace +" 2 "+ adminEmail);
+		Optional<UserEntity> oue = this.userHandler.findById(adminSpace + "|" + adminEmail);
+		System.err.println("******************** " + oue.isPresent() +" "+ adminSpace +" "+ adminEmail);
+		if (oue.isPresent()) {							// Check if user exists
+			System.err.println("******************** " + oue.get().getRole() + " ********************");
+			if (oue.get().getRole() == "ADMIN") {	// Check for admin permissions
+				for (UserEntity entity : content) 
+					boundaries.add(this.convertToBoundary(entity));
+			}
 		}
-		return userBoundaries;
+		return boundaries;
 	}
 
 	@Override
@@ -115,10 +122,10 @@ public class UserServiceImplementation implements UsersService {
 		
 	}
 	
-	private UserEntity convertToEntity(UserBoundary boundary) {
+	public UserEntity convertToEntity(UserBoundary boundary) {
 		UserEntity entity = new UserEntity();
-		entity.setUserID(boundary.getUserID());
-		entity.setUserID(new UserId(space, boundary.getUserID().getEmail()));
+		entity.setUserID(boundary.getUserId());
+		entity.setUserID(new UserId(space, boundary.getUserId().getEmail()));
 		entity.setRole(boundary.getRole().toString());
 		entity.setUsername(boundary.getUsername());
 		entity.setAvatar(boundary.getAvatar());
@@ -128,8 +135,8 @@ public class UserServiceImplementation implements UsersService {
 	
 	private UserBoundary convertToBoundary(UserEntity entity) {
 		UserBoundary boundary = new UserBoundary();
-		String[] tokens = getTokens(entity.getUserID());
-		boundary.setUserID(new UserId(tokens[0], tokens[1]));
+		String[] tokens = getTokens(entity.getUserId());
+		boundary.setUserId(new UserId(tokens[0], tokens[1]));
 		boundary.setRole(entity.getRole());
 		boundary.setUserName(entity.getUsername());
 		boundary.setAvatar(entity.getAvatar());
@@ -141,6 +148,13 @@ public class UserServiceImplementation implements UsersService {
 		String[] tokens = new String[2];
 		tokens = userID.split("\\|");
 		return tokens;
+	}
+
+	@Override
+	@Transactional(readOnly = true) // handle race condition
+	@Deprecated
+	public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail) {
+		throw new RuntimeException("deprecated operation");
 	}
 	
 }

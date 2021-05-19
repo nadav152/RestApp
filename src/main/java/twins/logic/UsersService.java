@@ -5,10 +5,10 @@ import java.util.List;
 import twins.boundaries.UserBoundary;
 
 public interface UsersService {
-	UserBoundary createUser(UserBoundary user);
-	UserBoundary login(String userSpace, String userEmail);
-	UserBoundary updateUser(String userSpace, String userEmail,
+	public UserBoundary createUser(UserBoundary user);
+	public UserBoundary login(String userSpace, String userEmail);
+	public UserBoundary updateUser(String userSpace, String userEmail,
 							UserBoundary update);
-	List<UserBoundary> getAllUsers(String adminSpace, String adminEmail);
-	void deleteAllUsers(String adminSpace, String adminEmail);
+	@Deprecated public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail);
+	public void deleteAllUsers(String adminSpace, String adminEmail);
 }

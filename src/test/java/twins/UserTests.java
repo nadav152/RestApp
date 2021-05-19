@@ -13,6 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import twins.additionalClasses.NewUserDetails;
 import twins.additionalClasses.UserId;
 import twins.boundaries.UserBoundary;
+import twins.logic.UserServiceImplementation;
+import twins.data.UserEntity;
 import twins.data.UserRole;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -78,18 +80,18 @@ public class UserTests {
 		
 		// When I invoke PUT /twins/users/{userSpace}/{userEmail} and {"avatar":"cbn"}
 		UserBoundary update = new UserBoundary();
-		update.setUserID(new UserId("2021b.Daniel.Aizenband","cowboy4life@gmail.com"));
+		update.setUserId(new UserId("2021b.Daniel.Aizenband","cowboy4life@gmail.com"));
 		update.setRole("PLAYER");
 		update.setUserName("cowboy11");
 		update.setAvatar("cbn");
-		System.out.println(response.getUserID().getSpace() + " " + response.getUserID().getEmail());
+		System.out.println(response.getUserId().getSpace() + " " + response.getUserId().getEmail());
 		
 		this.restTemplate
-			.put(this.url + "/{userSpace}/{userEmail}", update, response.getUserID().getSpace(), response.getUserID().getEmail());
+			.put(this.url + "/{userSpace}/{userEmail}", update, response.getUserId().getSpace(), response.getUserId().getEmail());
 		
 		// Assert that the database user is updated
 		assertThat(this.restTemplate
-			.getForObject(this.url + "/login/{userSpace}/{userEmail}", UserBoundary.class, response.getUserID().getSpace(), response.getUserID().getEmail())
+			.getForObject(this.url + "/login/{userSpace}/{userEmail}", UserBoundary.class, response.getUserId().getSpace(), response.getUserId().getEmail())
 			.getAvatar())
 		
 			.isEqualTo(update.getAvatar())
@@ -108,7 +110,7 @@ public class UserTests {
 			.postForObject(this.url, userDetails, UserBoundary.class);
 		
 		userDetails.setEmail("indian4life@gmail.com");
-		userDetails.setRole(UserRole.MANAGER);
+		userDetails.setRole(UserRole.ADMIN);
 		userDetails.setUsername("indian11");
 		userDetails.setAvatar("indi");		
 		response = this.restTemplate
@@ -116,16 +118,16 @@ public class UserTests {
 		
 		// Assert that the array contains users and isn't empty.		
 		UserBoundary[] array = this.restTemplate
-				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserId().getSpace(), response.getUserId().getEmail());
 		assertThat(array.length).isNotEqualTo(0);
 		
 		// Delete all users.
 		this.restTemplate
-			.delete("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary.class, response.getUserID().getSpace(), response.getUserID().getEmail());
+			.delete("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary.class, response.getUserId().getSpace(), response.getUserId().getEmail());
 		
 		// Assert that the array is empty after delete.
 		array = this.restTemplate
-				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+				.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserId().getSpace(), response.getUserId().getEmail());
 		assertThat(array.length).isEqualTo(0);
 		
 	}
@@ -141,15 +143,18 @@ public class UserTests {
 			.postForObject(this.url, userDetails, UserBoundary.class);
 		
 		userDetails.setEmail("indian4life@gmail.com");
-		userDetails.setRole(UserRole.MANAGER);
+		userDetails.setRole(UserRole.ADMIN);
 		userDetails.setUsername("indian11");
 		userDetails.setAvatar("indi");		
 		response = this.restTemplate
 			.postForObject(this.url, userDetails, UserBoundary.class);
-			
-		// Assert that the array contains users and isn't empty.
+
+		// Assert that the array isn't empty.
 		UserBoundary[] array = this.restTemplate
-			.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserID().getSpace(), response.getUserID().getEmail());
+			.getForObject("http://localhost:" + this.port + "/twins/admin/users/{userSpace}/{userEmail}", UserBoundary[].class, response.getUserId().getSpace(), response.getUserId().getEmail());
 		assertThat(array.length).isNotEqualTo(0);
+		for (UserBoundary userBoundary : array) {
+			System.err.println(userBoundary);
+		}
 	}
 }

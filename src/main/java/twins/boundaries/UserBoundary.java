@@ -5,35 +5,35 @@ import twins.data.UserRole;
 
 
 public class UserBoundary {
-	private UserId userID;
+	private UserId userId;
 	private UserRole role;
 	private String username;
 	private String avatar;
 
 	
 	public UserBoundary() {
-		this.userID = new UserId();
+		this.userId = new UserId();
 	}
 
 	public UserBoundary(String space, String email, UserRole role, String username, String avatar) {
 		this();
-		this.userID.setSpace(space);
-		this.userID.setEmail(email);
+		this.userId.setSpace(space);
+		this.userId.setEmail(email);
 		this.role = role;
 		this.username = username;
 		this.avatar = avatar;
 	}
 	
-	public UserId getUserID() {
-		return userID;
+	public UserId getUserId() {
+		return userId;
 	}
 
-	public void setUserID(UserId userID) {
-		this.userID = userID;
+	public void setUserId(UserId userId) {
+		this.userId = userId;
 	}
-	public void setUserID(String userSpace, String userEmail) {
-		this.userID.setSpace(userSpace);
-		this.userID.setEmail(userEmail);
+	public void setUserId(String userSpace, String userEmail) {
+		this.userId.setSpace(userSpace);
+		this.userId.setEmail(userEmail);
 	}
 
 	public UserRole getRole() {
@@ -70,7 +70,7 @@ public class UserBoundary {
 	
 	@Override
 	public String toString() {
-		return "Member's Details:\n [userID : [" + userID.getSpace() + " , "+ userID.getEmail() + "], role : " + role + ", username : " + username
+		return "Member's Details:\n [userId : [" + userId.getSpace() + " , "+ userId.getEmail() + "], role : " + role + ", username : " + username
 				+ ", avatar : " + avatar + "]";
 	}
 

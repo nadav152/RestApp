@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import twins.additionalClasses.NewUserDetails;
 import twins.boundaries.UserBoundary;
+import twins.logic.ExtendedUsersService;
 import twins.logic.UsersService;
 
 // Save this file again
@@ -27,10 +28,10 @@ import twins.logic.UsersService;
 
 @RestController
 public class UserController {
-	private UsersService usersService;	
+	private ExtendedUsersService usersService;	
 	
 	@Autowired
-	public UserController(UsersService usersService) {
+	public UserController(ExtendedUsersService usersService) {
 		this.usersService = usersService;
 	}
 	/* Users related API */
@@ -84,11 +85,14 @@ public class UserController {
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	public UserBoundary[] exportUsers (
 			@PathVariable("userSpace") String userSpace,
-			@PathVariable("userEmail") String userEmail){
+			@PathVariable("userEmail") String userEmail,
+
+			@RequestParam(name="size", required = false, defaultValue = "20") int  size,
+			@RequestParam(name="page", required = false, defaultValue = "0") int page){
 		
-		List <UserBoundary> usersList = this.usersService.getAllUsers(userSpace, userEmail);
-		UserBoundary[] usersArr = usersList.toArray(new UserBoundary[0]);
-		return usersArr;
+		List <UserBoundary> usersList = this.usersService.getAllUsers(userSpace, userEmail, size, page);
+		
+		return usersList.toArray(new UserBoundary[0]);
 	}
 	
 }
