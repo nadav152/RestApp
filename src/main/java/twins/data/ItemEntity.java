@@ -21,8 +21,8 @@ DATE       | VARCHAR(255)  | VARCHAR(255) | BOOLEAN              //TODO add more
 @Table(name = "ITEMS_TABLE")
 public class ItemEntity {
 
-	private String id;
-	private String space;
+	
+	private String itemId;
 	private String type;
 	private String name;
 	private boolean active;
@@ -37,20 +37,12 @@ public class ItemEntity {
 	}
 
 	@Id
-	public String getId() {
-		return id;
-	}
-	
-	public void setId(String id) {
-		this.id = id;
+	public String getItemId() {
+		return itemId;
 	}
 
-	public String getSpace() {
-		return space;
-	}
-
-	public void setSpace(String space) {
-		this.space = space;
+	public void setItemId(String itemId) {
+		this.itemId = itemId;
 	}
 
 

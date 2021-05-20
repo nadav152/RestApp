@@ -20,12 +20,15 @@ import twins.additionalClasses.Location;
 import twins.additionalClasses.UserId;
 import twins.boundaries.ItemBoundary;
 import twins.dal.ItemHandler;
+import twins.dal.UserHandler;
 import twins.data.ItemEntity;
+import twins.data.UserEntity;
 
 @Service
 public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	private ItemHandler itemHandler;
+	private UserHandler userHandler;
 	private ObjectMapper jackson;
 	private String space;
 
@@ -52,55 +55,69 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public ItemBoundary createItem(String userSpace, String userEmail, ItemBoundary item) {
-		// 1. validate input - make sure message is not null
-		if (item == null || item.getType() == null) 
-			throw new RuntimeException("Item and item type must not be null");
 		
-		if (item.getName() == null || item.getName().equals("")) 
+		// 1. validate input - make sure Item is not null
+		if (item == null || item.getType() == null)
+			throw new RuntimeException("Item and item type must not be null");
+
+		if (item.getName() == null || item.getName().equals(""))
 			throw new RuntimeException("Item name must not be null or empty");
 		
+		if(!checkUserRole(item.getCreatedBy()))
+			throw new RuntimeException("User is not Manager");
+
+
 		item.setCreatedBy(new UserId(userSpace, userEmail));
+		item.setItemID(new ItemId(this.space,UUID.randomUUID().toString()));
+		item.setCreatedTimestamp(new Date());
+		
 		
 		// 2. boundary -> entity
 		ItemEntity entity = this.convertToEntity(item);
-
-		// 3. generate ID + timestamp
-		entity.setId(UUID.randomUUID().toString());
-		entity.setCreatedTimestamp(new Date());
-
-		// 4. set dummy to a constant of the project
-		entity.setSpace(this.space);
-
-		// 5. INSERT to database
+		
+		// 3. INSERT to database
 		entity = this.itemHandler.save(entity);
 
-		// 6. entity -> boundary
+		// 4. entity -> boundary
 		return this.convertToBoundary(entity);
 	}
 
 	@Override
 	public ItemBoundary updateItem(String userSpace, String userEmail, String itemSpace, String itemId,
 			ItemBoundary update) {
-		
-		if(!userSpace.equals("Manager"))
-			return update;
-		
+
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
-		if (existing.isPresent()) {
-			update.setItemID(new ItemId(existing.get().getSpace(), existing.get().getId()));
+		if (checkItemExisting(existing.isPresent()) && checkUserRole(this.unmarshall(existing.get().getCreatedBy(), UserId.class))) {
+			
+			update.setItemID(this.unmarshall(existing.get().getCreatedBy(),ItemId.class));
 			update.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserId.class));
 			update.setCreatedTimestamp(existing.get().getCreatedTimestamp());
 			ItemEntity updatedEntity = this.convertToEntity(update);
 
 			// UPDATE
 			this.itemHandler.save(updatedEntity);
-		} else {
-			throw new RuntimeException("Item could not be found");
 		}
 
 		return update;
 	}
+
+	private boolean checkUserRole(UserId userId) {
+		if (userId == null)
+			return false;
+		Optional<UserEntity> existing = this.userHandler.findById(userId.getSpace() + "|" + userId.getEmail());
+		if (checkItemExisting(existing.isPresent()) && existing.get().getRole().toString().equals("Manager"))
+			return true;
+
+		return false;
+
+	}
 	
+	private boolean checkItemExisting(boolean present) {
+		if (!present)
+			throw new RuntimeException("this object could not be found");
+		return true;
+	}
+
 	@Override
 	@Transactional(readOnly = true) // handle race condition
 	public List<ItemBoundary> getAllItems(String userSpace, String userEmail, int page, int size) {
@@ -117,7 +134,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 //			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
 //					&& boundary.getCreatedBy().getEmail().equals(userEmail))
 
-			if (boundary.isActive() || userSpace.equals("Manager"))
+			if (boundary.isActive() || checkUserRole(boundary.getCreatedBy()))
 				rv.add(boundary);
 		}
 		return rv;
@@ -133,10 +150,10 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		List<ItemBoundary> rv = new ArrayList<>();
 		for (ItemEntity entity : allEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-	
+
 //			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
 //					&& boundary.getCreatedBy().getEmail().equals(userEmail))
-				rv.add(boundary);
+			rv.add(boundary);
 		}
 		return rv;
 	}
@@ -145,9 +162,9 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	public ItemBoundary getSpecificItem(String userSpace, String userEmail, String itemSpace, String itemId) {
 		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
 		if (existing.isPresent()) {
-			ItemEntity entity = existing.get();
-			if (userSpace.equals("Manager") || entity.isActive())
-				return this.convertToBoundary(entity);
+			ItemEntity itemEntity = existing.get();
+			if (checkUserRole(this.unmarshall(itemEntity.getCreatedBy(), UserId.class)) || itemEntity.isActive())
+				return this.convertToBoundary(itemEntity);
 			else
 				throw new RuntimeException("Item is not active");
 		} else
@@ -162,13 +179,13 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	private ItemBoundary convertToBoundary(ItemEntity entity) {
 		ItemBoundary boundary = new ItemBoundary();
-		boundary.setItemID(new ItemId(entity.getSpace(), entity.getId()));
+		boundary.setItemID(this.unmarshall(entity.getItemId(), ItemId.class));
 		boundary.setType(entity.getType());
 		boundary.setName(entity.getName());
 		boundary.setActive(entity.isActive());
 		boundary.setCreatedBy(this.unmarshall(entity.getCreatedBy(), UserId.class));
 		boundary.setLocation(this.unmarshall(entity.getLocation(), Location.class));
-		
+
 		boundary.setCreatedTimestamp(entity.getCreatedTimestamp());
 		String details = entity.getItemAttributes();
 		// use jackson for unmarshalling JSON --> Map
@@ -179,7 +196,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	private ItemEntity convertToEntity(ItemBoundary boundary) {
 		ItemEntity entity = new ItemEntity();
-		entity.setId(boundary.getItemID().getID());
+		entity.setItemId(this.marshall(boundary.getItemID()));
 		entity.setType(boundary.getType());
 		entity.setName(boundary.getName());
 		entity.setActive(boundary.isActive());
