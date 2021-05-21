@@ -30,6 +30,7 @@ import twins.data.ItemEntity;
 import twins.data.OperationEntity;
 import twins.data.UserEntity;
 import twins.additionalClasses.Item;
+import twins.additionalClasses.ItemId;
 
 @Service
 public class OperationServiceImplementation implements ExtendedOperationsService {
@@ -40,6 +41,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	private ObjectMapper jackson;
 	private String space;
 	private JmsTemplate jmsTemplate;
+	private OperationComponent operationComponent;
 
 	@Autowired
 	public OperationServiceImplementation(OperationHandler operationHandler) {
@@ -90,12 +92,12 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		if(operation.getItem().getItemId() == null)
 			throw new RuntimeException("oper ItemId must not be null");
 		if(operation.getInvokedBy() == null)
-			throw new RuntimeException("operation Item must not be null");
+			throw new RuntimeException("operation InvokedBy not be null");
 
 		operation.setCreatedTimestamp(new Date());
 		operation.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));
 		OperationEntity oe = this.convertToEntity(operation);
-		Optional<ItemEntity> itemOptional = this.itemHandler.findById(operation.getItem().getItemId().getID());
+		Optional<ItemEntity> itemOptional = this.itemHandler.findById(this.marshall(new ItemId(operation.getItem().getItemId().getSpace(),operation.getItem().getItemId().getID())));
 		if(itemOptional.isPresent()) {
 			ItemEntity ie = itemOptional.get();
 			Optional<UserEntity> userOptinoal = this.userHandler.findById(operation.getInvokedBy().getUserId().getSpace() + "|" + operation.getInvokedBy().getUserId().getEmail());
@@ -115,7 +117,10 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		}
 		else 
 			throw new RuntimeException("item must not be null\n");
-		return this.convertToBoundary(oe);
+		
+		OperationBoundary rv = this.convertToBoundary(oe);
+		
+		return rv;
 	}
 
 
@@ -138,7 +143,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 			operation.setCreatedTimestamp(new Date());
 			operation.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));
 			OperationEntity oe = this.convertToEntity(operation);
-			Optional<ItemEntity> itemOptional = this.itemHandler.findById(operation.getItem().getItemId().getID());
+			Optional<ItemEntity> itemOptional = this.itemHandler.findById(this.marshall(new ItemId(operation.getItem().getItemId().getSpace(),operation.getItem().getItemId().getID())));
 			Optional<UserEntity> userOptional = this.userHandler.findById(operation.getInvokedBy().getUserId().getSpace() + "|" + operation.getInvokedBy().getUserId().getEmail());
 			if(itemOptional.isPresent() && userOptional.isPresent()) {
 				ItemEntity ie = itemOptional.get();
@@ -146,7 +151,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 				if(ie.isActive() == true && ue.getRole() == "PLAYER") { 
 					String json = this.jackson.writeValueAsString(operation);
 					this.jmsTemplate.send("OperationsDestination", session -> session.createTextMessage(json));
-					oe = this.operationHandler.save(oe);
+					//oe = this.operationHandler.save(oe);
 				}
 				else 
 					throw new RuntimeException("Item must be active and UserRole must be Player\n");
@@ -216,12 +221,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	@Override
 	@Transactional
 	public OperationBoundary doSomething(OperationBoundary ob) {
-		System.err.println("in doSomthing\n");
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 		if(ob.getOperationId().getId() == null)
 			ob.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));;
 		
