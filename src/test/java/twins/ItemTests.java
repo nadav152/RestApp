@@ -60,7 +60,7 @@ public class ItemTests {
 		assertThat(userResponse.getRole().toString().equals("Manager"));
 		
 		// WHEN I invoke POST /twins with {"item":"myTestItem"}
-		ItemBoundary item = new ItemBoundary("Daniel", "towel", "ben",
+		ItemBoundary item = new ItemBoundary("towel", "ben",
 				true, new UserId("2021b.Daniel.Aizenband", "ben@gmail.com"), new Location(1.0, 1.0));
 	
 	
@@ -74,40 +74,44 @@ public class ItemTests {
 
 	@Test
 	public void testUpdateItem() {
+		//creating user 
+		NewUserDetails newUserDetails = new NewUserDetails("ben@gmail.com", UserRole.MANAGER, "ben", "wolf");
+		UserBoundary userResponse = this.restTemplate.postForObject(url + "/users", newUserDetails, UserBoundary.class);
+		assertThat(userResponse.getRole().toString().equals("Manager"));
 		
-
-
-	}
 	
-//	public ItemBoundary(String space, String id, String type, String name, boolean active, UserId createdBy, Location location) {
-//		this();
-//		this.itemID = new ItemId(space, id);
-//		this.type = type;
-//		this.name = name;
-//		this.active = active;
-//		this.createdBy = createdBy;
-//		this.location = location;
-//	}
-//	
-//	public ItemBoundary(String space,String type, String name, boolean active, UserId createdBy, Location location) {
-//		this();
-//		this.itemID = new ItemId("NaN", "NaN");
-//		this.type = type;
-//		this.name = name;
-//		this.active = active;
-//		this.createdBy = createdBy;
-//		this.location = location;
-//	}
+		//creating Item boundary 
+		ItemBoundary itemToBeReplaced = new ItemBoundary("towel", "ben",
+				true, new UserId("2021b.Daniel.Aizenband", "ben@gmail.com"), new Location(1.0, 1.0));
+	
+		//this post method - ensure the creator user is a manager
+		ItemBoundary reponse = this.restTemplate.postForObject(this.url+"/items/2021b.Daniel.Aizenband/ben@gmail.com", itemToBeReplaced, ItemBoundary.class);
+		
+		ItemBoundary itemToBePlaced = new ItemBoundary("pool", "moshe",
+				true, new UserId("2021b.Daniel.Aizenband", "ben123123@gmail.com"), new Location(2.0, 2.0));
+		
+		// update item
+		///twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}
+		this.restTemplate.put(this.url + "/items/"+userResponse.getUserId().getSpace()+ "/" + 
+				userResponse.getUserId().getEmail()+"/"+reponse.getItemID().getSpace()+"/"+reponse.getItemID().getID(),itemToBePlaced);
+		
+		//get updated Item from DB
+		///twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}
+		ItemBoundary finalUpdatedItem = this.restTemplate.getForObject(this.url + "/items/"+userResponse.getUserId().getSpace()+ "/" + 
+				userResponse.getUserId().getEmail()+"/"+reponse.getItemID().getSpace()+"/"+reponse.getItemID().getID(), ItemBoundary.class);
+		
+		assertThat(finalUpdatedItem.getType()).isEqualTo("pool");
+	}
 	
 	@Test
 	public void testRetrieveItem() {
-		// GIVEN the server is up
+		
 
 	}
 	
 	@Test
 	public void testRetrieveAllItem() {
-		// GIVEN the server is up
+		
 	
 
 	}

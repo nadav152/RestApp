@@ -35,7 +35,7 @@ public class ItemBoundary {
 		this.location = location;
 	}
 	
-	public ItemBoundary(String space,String type, String name, boolean active, UserId createdBy, Location location) {
+	public ItemBoundary(String type, String name, boolean active, UserId createdBy, Location location) {
 		this();
 		this.itemID = new ItemId("NaN", "NaN");
 		this.type = type;

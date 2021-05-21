@@ -68,7 +68,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		if (item.getName() == null || item.getName().equals(""))
 			throw new RuntimeException("Item name must not be null or empty");
 		
-		if(!checkUserRole(item.getCreatedBy()))
+		if(!checkUserRole(new UserId(userSpace, userEmail)))
 			throw new RuntimeException("User is not Manager");
 
 
@@ -89,21 +89,21 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public ItemBoundary updateItem(String userSpace, String userEmail, String itemSpace, String itemId,
-			ItemBoundary update) {
+			ItemBoundary newItemBoundary) {
 
-		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
-		if (checkItemExisting(existing.isPresent()) && checkUserRole(this.unmarshall(existing.get().getCreatedBy(), UserId.class))) {
+		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace,itemId)));
+		if (checkItemExisting(existing.isPresent()) && checkUserRole(new UserId(userSpace,userEmail))) {
 			
-			update.setItemID(this.unmarshall(existing.get().getCreatedBy(),ItemId.class));
-			update.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserId.class));
-			update.setCreatedTimestamp(existing.get().getCreatedTimestamp());
-			ItemEntity updatedEntity = this.convertToEntity(update);
+			newItemBoundary.setItemID(this.unmarshall(existing.get().getItemId(),ItemId.class));
+			newItemBoundary.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserId.class));
+			newItemBoundary.setCreatedTimestamp(existing.get().getCreatedTimestamp());
+			ItemEntity updatedEntity = this.convertToEntity(newItemBoundary);
 
 			// UPDATE
 			this.itemHandler.save(updatedEntity);
 		}
 
-		return update;
+		return newItemBoundary;
 	}
 
 	private boolean checkUserRole(UserId userId) {
@@ -166,10 +166,10 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public ItemBoundary getSpecificItem(String userSpace, String userEmail, String itemSpace, String itemId) {
-		Optional<ItemEntity> existing = this.itemHandler.findById(itemId);
+		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace,itemId)));
 		if (existing.isPresent()) {
 			ItemEntity itemEntity = existing.get();
-			if (checkUserRole(this.unmarshall(itemEntity.getCreatedBy(), UserId.class)) || itemEntity.isActive())
+			if (checkUserRole(new UserId(userSpace,userEmail))|| itemEntity.isActive())
 				return this.convertToBoundary(itemEntity);
 			else
 				throw new RuntimeException("Item is not active");

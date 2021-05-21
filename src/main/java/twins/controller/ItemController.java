@@ -54,12 +54,12 @@ public class ItemController {
 			path="/twins/items/{userSpace}/{userEmail}/{itemSpace}/{itemID}",
 			method = RequestMethod.PUT,
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void updateItem (@RequestBody ItemBoundary ib,
+	public void updateItem (@RequestBody ItemBoundary itemBoundary,
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail,
 			@PathVariable("itemSpace") String itemSpace,
 			@PathVariable("itemID") String itemID){
-		this.itemsService.updateItem(userSpace, userEmail, itemSpace, itemID, ib);
+		this.itemsService.updateItem(userSpace, userEmail, itemSpace, itemID, itemBoundary);
 	}
 	
 	@RequestMapping(
