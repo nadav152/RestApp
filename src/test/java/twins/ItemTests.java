@@ -70,8 +70,37 @@ public class ItemTests {
 	@Test
 	public void testUpdateItem() {
 		// GIVEN the server is up
+		// GIVEN the server is up
+
+
+
+		// WHEN I invoke POST /twins with {"item":"myTestItem"}
+		ItemBoundary item = new ItemBoundary("Manager", "customer", "ben",
+				true, new UserId("Manager", "ben@gmail.com"), new Location(1.0, 1.0));
+	
+		this.restTemplate.postForObject(this.url+"/Manager/beg@gmail.com", item, ItemBoundary.class);
 
 	}
+	
+//	public ItemBoundary(String space, String id, String type, String name, boolean active, UserId createdBy, Location location) {
+//		this();
+//		this.itemID = new ItemId(space, id);
+//		this.type = type;
+//		this.name = name;
+//		this.active = active;
+//		this.createdBy = createdBy;
+//		this.location = location;
+//	}
+//	
+//	public ItemBoundary(String space,String type, String name, boolean active, UserId createdBy, Location location) {
+//		this();
+//		this.itemID = new ItemId("NaN", "NaN");
+//		this.type = type;
+//		this.name = name;
+//		this.active = active;
+//		this.createdBy = createdBy;
+//		this.location = location;
+//	}
 	
 	@Test
 	public void testRetrieveItem() {

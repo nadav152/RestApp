@@ -13,17 +13,18 @@ public class Location {
 		this.lat = lat;
 		this.lng = lng;
 	}
-	public double getX() {
+
+	public double getLat() {
 		return lat;
 	}
-	public void setX(double x) {
-		this.lat = x;
+	public void setLat(double lat) {
+		this.lat = lat;
 	}
-	public double getY() {
+	public double getLng() {
 		return lng;
 	}
-	public void setY(double y) {
-		this.lng = y;
+	public void setLng(double lng) {
+		this.lng = lng;
 	}
 	@Override
 	public String toString() {
