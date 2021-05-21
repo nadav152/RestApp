@@ -13,8 +13,11 @@ import org.springframework.web.client.RestTemplate;
 
 import twins.additionalClasses.ItemId;
 import twins.additionalClasses.Location;
+import twins.additionalClasses.NewUserDetails;
 import twins.additionalClasses.UserId;
 import twins.boundaries.ItemBoundary;
+import twins.boundaries.UserBoundary;
+import twins.data.UserRole;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ItemTests {
@@ -36,7 +39,7 @@ public class ItemTests {
 
 	@PostConstruct
 	public void init() {
-		this.url = "http://localhost:" + this.port + "/twins/items";
+		this.url = "http://localhost:" + this.port + "/twins";
 		System.err.println(this.url);
 		this.restTemplate = new RestTemplate();
 	}
@@ -51,15 +54,17 @@ public class ItemTests {
 	@Test
 	public void testCreateItem() {
 		// GIVEN the server is up
-
-
-
+		//new UserBoundary("sector 12", ud.getEmail(), ud.getRole(), ud.getUsername(), ud.getAvatar()
+		NewUserDetails newUserDetails = new NewUserDetails("ben@gmail.com", UserRole.MANAGER, "ben", "wolf");
+		UserBoundary userResponse = this.restTemplate.postForObject(url + "/users", newUserDetails, UserBoundary.class);
+		assertThat(userResponse.getRole().toString().equals("Manager"));
+		
 		// WHEN I invoke POST /twins with {"item":"myTestItem"}
-		ItemBoundary item = new ItemBoundary("Manager", "customer", "ben",
-				true, new UserId("Manager", "ben@gmail.com"), new Location(1.0, 1.0));
+		ItemBoundary item = new ItemBoundary("Daniel", "towel", "ben",
+				true, new UserId("2021b.Daniel.Aizenband", "ben@gmail.com"), new Location(1.0, 1.0));
 	
 	
-		ItemBoundary reponse = this.restTemplate.postForObject(this.url+"/Manager/beg@gmail.com", item, ItemBoundary.class);
+		ItemBoundary reponse = this.restTemplate.postForObject(this.url+"/items/2021b.Daniel.Aizenband/ben@gmail.com", item, ItemBoundary.class);
 
 		// THEN the server returns status 2xx
 		// AND the response body contains "item":"myTestItem"
@@ -69,16 +74,8 @@ public class ItemTests {
 
 	@Test
 	public void testUpdateItem() {
-		// GIVEN the server is up
-		// GIVEN the server is up
+		
 
-
-
-		// WHEN I invoke POST /twins with {"item":"myTestItem"}
-		ItemBoundary item = new ItemBoundary("Manager", "customer", "ben",
-				true, new UserId("Manager", "ben@gmail.com"), new Location(1.0, 1.0));
-	
-		this.restTemplate.postForObject(this.url+"/Manager/beg@gmail.com", item, ItemBoundary.class);
 
 	}
 	

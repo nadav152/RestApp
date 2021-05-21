@@ -38,6 +38,11 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		this.itemHandler = itemHandler;
 		this.jackson = new ObjectMapper();
 	}
+	
+	@Autowired
+	public void setUserHandler(UserHandler userHandler) {
+		this.userHandler = userHandler;
+	}
 
 	// have spring initialize the dummy value using property:
 	// spring.application.name
@@ -105,7 +110,8 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		if (userId == null)
 			return false;
 		Optional<UserEntity> existing = this.userHandler.findById(userId.getSpace() + "|" + userId.getEmail());
-		if (checkItemExisting(existing.isPresent()) && existing.get().getRole().toString().equals("Manager"))
+
+		if (checkItemExisting(existing.isPresent()) && existing.get().getRole().toString().equals("MANAGER"))
 			return true;
 
 		return false;
@@ -124,7 +130,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		// BEGIN new tx (transaction)
 
 		Page<ItemEntity> entitiesPage = this.itemHandler.findAll(PageRequest.of(page, size, Direction.DESC, "name"));
-
+		
 		List<ItemEntity> pagedEntities = entitiesPage.getContent();
 		List<ItemBoundary> rv = new ArrayList<>();
 
