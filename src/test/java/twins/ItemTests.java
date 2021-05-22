@@ -130,13 +130,13 @@ public class ItemTests {
 		assertThat(userResponse.getRole().toString().equals("Manager"));
 
 		//creating 7 item with the MANAGER user
-		creatItem("towel1", "ben");
-		creatItem("swimming glasses", "dodo");
-		creatItem("keys", "popo");
-		creatItem("golf cart", "momo");
-		creatItem("towel3", "bobo");
-		creatItem("towel2", "gogo");
-		creatItem("towel4", "bebe");
+		createItem("towel1", "ben");
+		createItem("swimming glasses", "dodo");
+		createItem("keys", "popo");
+		createItem("golf cart", "momo");
+		createItem("towel3", "bobo");
+		createItem("towel2", "gogo");
+		createItem("towel4", "bebe");
 		
 		//Using the getAll rest GET method to bring pages of items
 		ItemBoundary itemsPage0[] = this.restTemplate.getForObject(url + "/items/2021b.Daniel.Aizenband/ben123123@gmail.com?size=5&page=0",
@@ -144,19 +144,20 @@ public class ItemTests {
 		ItemBoundary itemsPage1[] = this.restTemplate.getForObject(url + "/items/2021b.Daniel.Aizenband/ben123123@gmail.com?size=5&page=1",
 				ItemBoundary[].class);
 		
+		
 		assertThat(itemsPage0.length).isEqualTo(5);
 		assertThat(itemsPage1.length).isEqualTo(2);
 
 	}
 
-	public void creatItem(String type, String name) {
+	public void createItem(String type, String name) {
 		// creating Item boundary
-		ItemBoundary itemToBeReplaced = new ItemBoundary(type, name, true,
+		ItemBoundary itemBoundary = new ItemBoundary(type, name, true,
 				new UserId("2021b.Daniel.Aizenband", "ben@gmail.com"), new Location(1.0, 1.0));
 
 		// this post method - ensure the creator user is a manager
-		ItemBoundary reponse = this.restTemplate.postForObject(this.url + "/items/2021b.Daniel.Aizenband/ben@gmail.com",
-				itemToBeReplaced, ItemBoundary.class);
+		this.restTemplate.postForObject(this.url + "/items/2021b.Daniel.Aizenband/ben@gmail.com",
+				itemBoundary, ItemBoundary.class);
 	}
 
 }
