@@ -35,7 +35,7 @@ public class OperationsJms {
 		
 		try {
 			OperationBoundary ob = this.jackson.readValue(json, OperationBoundary.class);
-			this.operationLogic.doSomething(ob);
+			this.operationLogic.invokeOperation(ob);
 		} catch (Exception e) {
 			e.printStackTrace();
 

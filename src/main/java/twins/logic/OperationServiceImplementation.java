@@ -43,14 +43,19 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	private JmsTemplate jmsTemplate;
 	private OperationComponent operationComponent;
 
+	
 	@Autowired
 	public OperationServiceImplementation(OperationHandler operationHandler) {
 		super();
 		this.operationHandler = operationHandler;
 		this.jackson = new ObjectMapper();
-
 	}
 	
+	@Autowired
+	public void setOperationComponent(OperationComponent operationComponent) {
+		this.operationComponent = operationComponent;
+	}
+
 	@Autowired
 	public void setItemHandler(ItemHandler itemHandler) {
 		this.itemHandler = itemHandler;
@@ -83,7 +88,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	@Override					
 	@Transactional
 
-	public OperationBoundary invokeOperation(OperationBoundary operation) {
+	public Object invokeOperation(OperationBoundary operation) {
 
 		if(operation.getType() == null)
 			throw new RuntimeException("operation Type must not be null");
@@ -117,9 +122,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		}
 		else 
 			throw new RuntimeException("item must not be null\n");
-		
-		OperationBoundary rv = this.convertToBoundary(oe);
-		
+		Object rv = this.operationComponent.switchCase(operation);
 		return rv;
 	}
 
@@ -218,17 +221,20 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 				throw new RuntimeException("User must be admin in order to delete operations\n");
 		}			
 	}
-	@Override
+	/* no need to use this method -> 
+	 * 				if async is invoked the implementation must be from jms listener*/
+	/*@Override
 	@Transactional
 	public OperationBoundary doSomething(OperationBoundary ob) {
 		if(ob.getOperationId().getId() == null)
 			ob.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));;
 		
 		System.err.println("before save\n");
+		//new oper
 		OperationEntity entity = this.operationHandler.save(this.convertToEntity(ob));
 		System.err.println("after save\n");
 		return this.convertToBoundary(entity);
-	}
+	}*/
 
 	//convert entity-> boundary
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
