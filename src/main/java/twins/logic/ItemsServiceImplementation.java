@@ -38,7 +38,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		this.itemHandler = itemHandler;
 		this.jackson = new ObjectMapper();
 	}
-	
+
 	@Autowired
 	public void setUserHandler(UserHandler userHandler) {
 		this.userHandler = userHandler;
@@ -60,26 +60,24 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public ItemBoundary createItem(String userSpace, String userEmail, ItemBoundary item) {
-		
+
 		// 1. validate input - make sure Item is not null
 		if (item == null || item.getType() == null)
 			throw new RuntimeException("Item and item type must not be null");
 
 		if (item.getName() == null || item.getName().equals(""))
 			throw new RuntimeException("Item name must not be null or empty");
-		
-		if(!checkUserRole(new UserId(userSpace, userEmail)))
+
+		if (!checkUserRole(new UserId(userSpace, userEmail), "MANAGER"))
 			throw new RuntimeException("User is not Manager");
 
-
 		item.setCreatedBy(new UserId(userSpace, userEmail));
-		item.setItemID(new ItemId(this.space,UUID.randomUUID().toString()));
+		item.setItemID(new ItemId(this.space, UUID.randomUUID().toString()));
 		item.setCreatedTimestamp(new Date());
-		
-		
+
 		// 2. boundary -> entity
 		ItemEntity entity = this.convertToEntity(item);
-		
+
 		// 3. INSERT to database
 		entity = this.itemHandler.save(entity);
 
@@ -91,10 +89,10 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	public ItemBoundary updateItem(String userSpace, String userEmail, String itemSpace, String itemId,
 			ItemBoundary newItemBoundary) {
 
-		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace,itemId)));
-		if (checkItemExisting(existing.isPresent()) && checkUserRole(new UserId(userSpace,userEmail))) {
-			
-			newItemBoundary.setItemID(this.unmarshall(existing.get().getItemId(),ItemId.class));
+		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace, itemId)));
+		if (checkItemExisting(existing.isPresent()) && checkUserRole(new UserId(userSpace, userEmail), "MANAGER")) {
+
+			newItemBoundary.setItemID(this.unmarshall(existing.get().getItemId(), ItemId.class));
 			newItemBoundary.setCreatedBy(this.unmarshall(existing.get().getCreatedBy(), UserId.class));
 			newItemBoundary.setCreatedTimestamp(existing.get().getCreatedTimestamp());
 			ItemEntity updatedEntity = this.convertToEntity(newItemBoundary);
@@ -106,18 +104,18 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		return newItemBoundary;
 	}
 
-	private boolean checkUserRole(UserId userId) {
+	private boolean checkUserRole(UserId userId, String role) {
 		if (userId == null)
 			return false;
 		Optional<UserEntity> existing = this.userHandler.findById(userId.getSpace() + "|" + userId.getEmail());
 
-		if (checkItemExisting(existing.isPresent()) && existing.get().getRole().toString().equals("MANAGER"))
+		if (checkItemExisting(existing.isPresent()) && existing.get().getRole().toString().equals(role))
 			return true;
 
 		return false;
 
 	}
-	
+
 	private boolean checkItemExisting(boolean present) {
 		if (!present)
 			throw new RuntimeException("this object could not be found");
@@ -130,17 +128,13 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		// BEGIN new tx (transaction)
 
 		Page<ItemEntity> entitiesPage = this.itemHandler.findAll(PageRequest.of(page, size, Direction.DESC, "name"));
-		
+
 		List<ItemEntity> pagedEntities = entitiesPage.getContent();
 		List<ItemBoundary> rv = new ArrayList<>();
 
 		for (ItemEntity entity : pagedEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-
-//			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
-//					&& boundary.getCreatedBy().getEmail().equals(userEmail))
-
-			if (boundary.isActive() || checkUserRole(boundary.getCreatedBy()))
+			if (boundary.isActive() || checkUserRole(new UserId(userSpace, userEmail), "MANAGER"))
 				rv.add(boundary);
 		}
 		return rv;
@@ -156,9 +150,6 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 		List<ItemBoundary> rv = new ArrayList<>();
 		for (ItemEntity entity : allEntities) {
 			ItemBoundary boundary = this.convertToBoundary(entity);
-
-//			if (boundary.getCreatedBy().getSpace().equals(userSpace)			TODO we might use this later on
-//					&& boundary.getCreatedBy().getEmail().equals(userEmail))
 			rv.add(boundary);
 		}
 		return rv;
@@ -166,10 +157,10 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public ItemBoundary getSpecificItem(String userSpace, String userEmail, String itemSpace, String itemId) {
-		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace,itemId)));
+		Optional<ItemEntity> existing = this.itemHandler.findById(this.marshall(new ItemId(itemSpace, itemId)));
 		if (existing.isPresent()) {
 			ItemEntity itemEntity = existing.get();
-			if (checkUserRole(new UserId(userSpace,userEmail))|| itemEntity.isActive())
+			if (checkUserRole(new UserId(userSpace, userEmail), "MANAGER") || itemEntity.isActive())
 				return this.convertToBoundary(itemEntity);
 			else
 				throw new RuntimeException("Item is not active");
@@ -179,8 +170,8 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public void deleteAllItems(String adminSpace, String adminEmail) {
-		this.itemHandler.deleteAll();
-		// TODO find out how to use admin space and email
+		if (checkUserRole(new UserId(adminSpace, adminEmail), "ADMIN"))
+			this.itemHandler.deleteAll();
 	}
 
 	private ItemBoundary convertToBoundary(ItemEntity entity) {
