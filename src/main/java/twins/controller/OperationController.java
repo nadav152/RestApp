@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,7 @@ import twins.logic.ExtendedOperationsService;
 //import twins.logic.OperationsService;
 
 
-
+@CrossOrigin(origins = "*")
 @RestController
 public class OperationController {
 	private ExtendedOperationsService operationsService;
