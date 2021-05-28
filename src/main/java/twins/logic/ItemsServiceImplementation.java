@@ -170,8 +170,12 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 	@Override
 	public void deleteAllItems(String adminSpace, String adminEmail) {
-		if (checkUserRole(new UserId(adminSpace, adminEmail), "ADMIN"))
+		if (checkUserRole(new UserId(adminSpace, adminEmail), "ADMIN")) {
 			this.itemHandler.deleteAll();
+			System.err.println("All items from space " + adminSpace + " have been deleted by " + adminEmail);
+		}
+		else
+			System.err.println("User from space " + adminSpace + " and email " + adminEmail+" tried to delete all item but is not an ADMIN");
 	}
 
 	private ItemBoundary convertToBoundary(ItemEntity entity) {

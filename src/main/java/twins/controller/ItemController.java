@@ -99,6 +99,5 @@ public class ItemController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		this.itemsService.deleteAllItems(userSpace, userEmail);
-		System.err.println("All items from space " + userSpace + " have been deleted by " + userEmail);
 	}
 }
