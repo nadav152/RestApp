@@ -55,7 +55,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	// have spring invoke this operation after initializing Spring bean
 	@PostConstruct
 	public void init() {
-		System.err.println("dummy: " + this.space);
+		System.err.println("space: " + this.space);
 	}
 
 	@Override
