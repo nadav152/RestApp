@@ -162,26 +162,40 @@ public class OperationComponent {
 
 		int currAmount = (int) itemAttributes.get("Current Users Amount");
 		int maxAmount = (int) itemAttributes.get("Max Users Amount");
+
+		if (itemResevationsList == null)
+			itemResevationsList = new HashMap<>();
+
 		switch (operationBoundary.getType()) {
-//		case "addUser":
-//			addUserToItemAttributes(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
-//					itemUsersList, currAmount, maxAmount);
-//			break;
-//		case "removeUser":
-//			removeUserFromItemAttributes(itemEntity, userEntity, operationAttributes, itemAttributes, itemUsersList,
-//					currAmount);
+
 		case "reserveField":
 			int playersAmount = (int) operationAttributes.get("playersAmount");
-			if (itemResevationsList == null)
-				itemResevationsList = new HashMap<>();
+
 			if (playersAmount < maxAmount) {
 				Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), playersAmount };
 				itemResevationsList.put(userEntity.getUserId(), reservationDetails);
-				itemAttributes.put("usersReservations", reservationDetails);
-				itemAttributes.put("Current Users Amount", currAmount + playersAmount);
+				itemAttributes.put("usersReservations", itemResevationsList);
+//				itemAttributes.put("Current Users Amount", currAmount + playersAmount);
 				itemEntity.setItemAttributes(this.marshall(itemAttributes));
 				this.itemHandler.save(itemEntity);
-			}
+				operationAttributes.put("Last Operation", userEntity.getUsername() + " added a field reservation");
+
+			} else
+				operationAttributes.put("Last Operation", "Reservation failed, too many players for this field");
+			break;
+			
+		case "cancelReservation":
+			if (itemResevationsList.containsKey(userEntity.getUserId())) {
+				itemResevationsList.remove(userEntity.getUserId());
+				itemAttributes.put("usersReservations", itemResevationsList);
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				this.itemHandler.save(itemEntity);
+				operationAttributes.put("Last Operation", userEntity.getUsername() + " reservation was canceled");
+
+			} else
+				operationAttributes.put("Last Operation", "Reservation does not exists");
+
+			break;
 
 		}
 		return operationBoundary;
@@ -190,19 +204,32 @@ public class OperationComponent {
 
 	private Object managePoolOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
+		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
+		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
+		Map<String, Object> itemUsersList = (Map<String, Object>) itemAttributes.get("GetUsers");
+		int currAmount = (int) itemAttributes.get("Current Users Amount");
+		int maxAmount = (int) itemAttributes.get("Max Users Amount");
+		switch (operationBoundary.getType()) {
+
+		case "addUser":
+			addUserToItemAttributes(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
+					itemUsersList, currAmount, maxAmount);
+			break;
+
+		case "removeUser":
+			removeUserFromItemAttributes(itemEntity, userEntity, operationAttributes, itemAttributes, itemUsersList,
+					currAmount);
+			break;
+
+		default:
+			break;
+		}
+
 		return operationBoundary;
-		// TODO Auto-generated method stub
+		
 
 	}
 
-	/*
-	 * private void reserveSoccerField(OperationBoundary operationBoundary,
-	 * ItemEntity ie) {
-	 * 
-	 * if(ie.getItemAttributes().contains("capacity"){
-	 * 
-	 * } }
-	 */
 	private void removeUserFromItemAttributes(ItemEntity itemEntity, UserEntity userEntity,
 			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
 			Map<String, Object> itemUsersList, int currAmount) {
