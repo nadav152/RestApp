@@ -124,7 +124,8 @@ public class OperationComponent {
 			break;
 
 		case "removeUser":
-			removeUserFromItemAttributes(itemEntity, userEntity, itemAttributes, itemUsersList, currAmount);
+			removeUserFromItemAttributes(itemEntity, userEntity, operationAttributes, itemAttributes, itemUsersList,
+					currAmount);
 			break;
 
 		default:
@@ -133,8 +134,6 @@ public class OperationComponent {
 
 		return operationBoundary;
 	}
-
-
 
 	private Object manageClassesOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
@@ -157,23 +156,33 @@ public class OperationComponent {
 
 	private Object manageFieldsOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
-		/*Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
+		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
 		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
-		Map<String, Object> itemUsersList = (Map<String, Object>) itemAttributes.get("GetUsers");
-		Map<String, Object> fieldItemId =  (Map<String, Object>) operationAttributes.get("CourtType");
+		Map<String, Object> itemResevationsList = (Map<String, Object>) itemAttributes.get("usersReservations");
+
 		int currAmount = (int) itemAttributes.get("Current Users Amount");
 		int maxAmount = (int) itemAttributes.get("Max Users Amount");
-		Optional<ItemEntity> itemOptional = this.itemHandler.findById();
-		switch(operationBoundary.getType()) {
-		case "addUser":
-			addUserToItemAttributes(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
-					itemUsersList, currAmount, maxAmount);
-			break;
-		case "removeUser":
-			removeUserFromItemAttributes(itemEntity, userEntity, itemAttributes, itemUsersList, currAmount);
-		}*/
+		switch (operationBoundary.getType()) {
+//		case "addUser":
+//			addUserToItemAttributes(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
+//					itemUsersList, currAmount, maxAmount);
+//			break;
+//		case "removeUser":
+//			removeUserFromItemAttributes(itemEntity, userEntity, operationAttributes, itemAttributes, itemUsersList,
+//					currAmount);
+		case "reserveField":
+			int playersAmount = (int) operationAttributes.get("playersAmount");
+			if (itemResevationsList == null)
+				itemResevationsList = new HashMap<>();
+			if (playersAmount < maxAmount) {
+				Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), playersAmount };
+				itemResevationsList.put(userEntity.getUserId(), reservationDetails);
+				itemAttributes.put("usersReservations", reservationDetails);
+			}
+
+		}
 		return operationBoundary;
-	
+
 	}
 
 	private Object managePoolOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
@@ -192,7 +201,8 @@ public class OperationComponent {
 	 * } }
 	 */
 	private void removeUserFromItemAttributes(ItemEntity itemEntity, UserEntity userEntity,
-			Map<String, Object> itemAttributes, Map<String, Object> itemUsersList, int currAmount) {
+			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
+			Map<String, Object> itemUsersList, int currAmount) {
 		/*
 		 * removing user from item attributes -1 to the item capacity counter and
 		 * removing the user from the item array of users.
@@ -201,13 +211,16 @@ public class OperationComponent {
 		if (itemUsersList == null)
 			itemUsersList = new HashMap<>();
 		if (currAmount > 0 && itemUsersList.containsKey(userEntity.getUserId())) {
-			//saving the updated users list after the user remove
+			// saving the updated users list after the user remove
 			itemUsersList.remove(userEntity.getUserId());
 			itemAttributes.put("GetUsers", itemUsersList);
 			itemAttributes.put("Current Users Amount", currAmount - 1);
 			itemEntity.setItemAttributes(this.marshall(itemAttributes));
 			this.itemHandler.save(itemEntity);
-		}
+			operationAttributes.put("Last Operation", "User was removed from " + itemEntity.getType());
+
+		} else
+			operationAttributes.put("Last Operation", "User could not be removed");
 	}
 
 	private void addUserToItemAttributes(OperationBoundary operationBoundary, ItemEntity itemEntity,
@@ -220,20 +233,20 @@ public class OperationComponent {
 		// checking the sauna has not reached it's full capacity
 		if (currAmount < maxAmount) {
 
-			//adding user to the sauna and saving the new users list
+			// adding user to the sauna and saving the new users list
 			itemUsersList.put(userEntity.getUserId(), operationBoundary.getInvokedBy().getUserId());
 			itemAttributes.put("GetUsers", itemUsersList);
 			itemAttributes.put("Current Users Amount", currAmount + 1);
 			itemEntity.setItemAttributes(this.marshall(itemAttributes));
 			this.itemHandler.save(itemEntity);
 
-			operationAttributes.put("Last Operation", "New User added to sauna");
+			operationAttributes.put("Last Operation", "New user add to " + itemEntity.getType());
 
 		} else {
-			operationAttributes.put("Last Operation", "Sauna has reached it's full capacity");
+			operationAttributes.put("Last Operation", itemEntity.getType() + " has reached it's full capacity");
 		}
 	}
-	
+
 	private String marshall(Object value) {
 		try {
 			return this.jackson.writeValueAsString(value);
