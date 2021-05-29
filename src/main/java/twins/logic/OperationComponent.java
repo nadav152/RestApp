@@ -1,5 +1,6 @@
 package twins.logic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -110,6 +111,11 @@ public class OperationComponent {
 	private OperationBoundary manageSaunaOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
 
+		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
+		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
+		Map<String, Object> userNames = (Map<String, Object>) itemAttributes.get("GetUsers");
+		int currAmount = (int) itemAttributes.get("Current Users Amount");
+		int maxAmount = (int) itemAttributes.get("Max Users Amount");
 		switch (operationBoundary.getType()) {
 
 		case "addUser":
@@ -117,26 +123,48 @@ public class OperationComponent {
 			 * adding user to item attributes +1 to the item capacity counter and adding the
 			 * user from the operation attributes to the item array of users.
 			 */
-			Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
-			Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
-			int currAmount = (int) itemAttributes.get("Current Users Amount");
-			int maxAmount = (int) itemAttributes.get("Max Users Amount");
+			
+			
+			
+			if (userNames == null)
+				userNames = new HashMap<>();
 
 			if (currAmount < maxAmount) {
 				itemAttributes.put("Current Users Amount", currAmount + 1);
+				userNames.put(userEntity.getUserId(), operationBoundary.getInvokedBy().getUserId());
+				itemAttributes.put("GetUsers", userNames);
 				itemEntity.setItemAttributes(this.marshall(itemAttributes));
 				this.itemHandler.save(itemEntity);
+
 				operationAttributes.put("Last Operation", "New User added to sauna");
-				
+
 			} else {
 				operationAttributes.put("Last Operation", "Sauna has reached it's full capacity");
 			}
-			return operationBoundary;
+			break;
+			
+		case "RemoveUser":
+			/*
+			 * removing user from item attributes -1 to the item capacity counter and
+			 * removing the user from the item array of users.
+			 */
 
+			if (userNames == null)
+				userNames = new HashMap<>();
+			if(currAmount > 0) {
+				itemAttributes.put("Current Users Amount", currAmount - 1);
+				userNames.remove(userEntity.getUserId());
+				itemAttributes.put("GetUsers", userNames);
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				this.itemHandler.save(itemEntity);
+			}
+			break;
+			
 		default:
-			return operationBoundary;
+			break;
 		}
-
+		
+		return operationBoundary;
 	}
 
 	private Object manageClassesOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
@@ -148,6 +176,7 @@ public class OperationComponent {
 			 * adding user to item attributes +1 to the item capacity counter and adding the
 			 * user from the operation attributes to the item array of users.
 			 */
+			
 			break;
 
 		default:
