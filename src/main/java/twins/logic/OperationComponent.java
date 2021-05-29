@@ -178,6 +178,9 @@ public class OperationComponent {
 				Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), playersAmount };
 				itemResevationsList.put(userEntity.getUserId(), reservationDetails);
 				itemAttributes.put("usersReservations", reservationDetails);
+				itemAttributes.put("Current Users Amount", currAmount + playersAmount);
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				this.itemHandler.save(itemEntity);
 			}
 
 		}
