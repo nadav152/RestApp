@@ -23,7 +23,6 @@ public class OperationComponent {
 	private OperationHandler operationHandler;
 	private ItemHandler itemHandler;
 	private UserHandler userHandler;
-//	private ExtendedItemsService itemsService;
 	private ObjectMapper jackson;
 
 	@Autowired
@@ -82,19 +81,15 @@ public class OperationComponent {
 
 			case "pool":
 				return managePoolOperations(operationBoundary, itemEntity, userEntity);
-				
 
 			case "sportsField":
 				return manageFieldsOperations(operationBoundary, itemEntity, userEntity);
-				
 
 			case "classes":
 				return manageClassesOperations(operationBoundary, itemEntity, userEntity);
-				
 
 			case "sauna":
 				return manageSaunaOperations(operationBoundary, itemEntity, userEntity);
-				
 
 			case "Extra activities":
 				/*
@@ -129,12 +124,14 @@ public class OperationComponent {
 
 			if (currAmount < maxAmount) {
 				itemAttributes.put("Current Users Amount", currAmount + 1);
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				this.itemHandler.save(itemEntity);
 				operationAttributes.put("Last Operation", "New User added to sauna");
-			}else {
+				
+			} else {
 				operationAttributes.put("Last Operation", "Sauna has reached it's full capacity");
 			}
 			return operationBoundary;
-			
 
 		default:
 			return operationBoundary;
@@ -162,7 +159,7 @@ public class OperationComponent {
 
 	private Object manageFieldsOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
-				return operationBoundary;
+		return operationBoundary;
 		/*
 		 * if(ie.getType() == "Soccer")
 		 * //operationBoundary.getOperationAttributes().containsKey("Soccer")
@@ -175,7 +172,7 @@ public class OperationComponent {
 
 	private Object managePoolOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
-				return operationBoundary;
+		return operationBoundary;
 		// TODO Auto-generated method stub
 
 	}
