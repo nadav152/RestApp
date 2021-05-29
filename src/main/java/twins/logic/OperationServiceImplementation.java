@@ -101,7 +101,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 
 		operation.setCreatedTimestamp(new Date());
 		operation.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));
-		OperationEntity oe = this.convertToEntity(operation);
+		//OperationEntity oe = this.convertToEntity(operation);
 		Optional<ItemEntity> itemOptional = this.itemHandler.findById(this.marshall(new ItemId(operation.getItem().getItemId().getSpace(),operation.getItem().getItemId().getID())));
 		if(itemOptional.isPresent()) {
 			ItemEntity ie = itemOptional.get();
@@ -110,9 +110,14 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 			if( userOptinoal.isPresent()) { 
 				UserEntity ue = userOptinoal.get();
 				
-				if(ie.isActive() == true && ue.getRole() == "PLAYER") 
-					oe = this.operationHandler.save(oe);
-
+				if(ie.isActive() == true && ue.getRole() == "PLAYER") {
+					//oe = this.operationHandler.save(oe);
+					OperationBoundary updatedOperation= (OperationBoundary) this.operationComponent.switchCase(operation);
+					OperationEntity oe = this.operationHandler.save(this.convertToEntity(updatedOperation));
+					return this.convertToBoundary(oe);
+					
+				}
+					
 				else 
 					throw new RuntimeException("Item must be active and UserRole must be Player\n");
 			}
@@ -122,8 +127,8 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		}
 		else 
 			throw new RuntimeException("item must not be null\n");
-		Object rv = this.operationComponent.switchCase(operation);
-		return rv;
+		//Object rv = this.operationComponent.switchCase(operation);
+		//return rv;
 	}
 
 
@@ -145,6 +150,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		try {
 			operation.setCreatedTimestamp(new Date());
 			operation.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));
+			operation.getOperationAttributes().put("Last Operation", "preforming async operation");
 			OperationEntity oe = this.convertToEntity(operation);
 			Optional<ItemEntity> itemOptional = this.itemHandler.findById(this.marshall(new ItemId(operation.getItem().getItemId().getSpace(),operation.getItem().getItemId().getID())));
 			Optional<UserEntity> userOptional = this.userHandler.findById(operation.getInvokedBy().getUserId().getSpace() + "|" + operation.getInvokedBy().getUserId().getEmail());
