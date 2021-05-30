@@ -86,17 +86,12 @@ public class OperationComponent {
 			case "sportsField":
 				return manageFieldsOperations(operationBoundary, itemEntity, userEntity);
 
-			case "classes":
+			case "gym":
 				return manageClassesOperations(operationBoundary, itemEntity, userEntity);
 
 			case "sauna":
 				return manageSaunaOperations(operationBoundary, itemEntity, userEntity);
 
-			case "Extra activities":
-				/*
-				 * if(ie.getType() == "Yoga") //signToYoga(); else if(ie.getType() == "HipHop")
-				 * //signtoHipHop();
-				 */
 			default:
 				break;
 			}
@@ -108,31 +103,15 @@ public class OperationComponent {
 		return operationBoundary;
 	}
 
-	private OperationBoundary manageSaunaOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
+	private Object manageSaunaOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
+		return itemAddRemoveUsers(operationBoundary, itemEntity, userEntity);
+	}
+	
+	private Object managePoolOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
+			UserEntity userEntity) {
+		return itemAddRemoveUsers(operationBoundary, itemEntity, userEntity);
 
-		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
-		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
-		Map<String, Object> itemUsersList = (Map<String, Object>) itemAttributes.get("GetUsers");
-		int currAmount = (int) itemAttributes.get("Current Users Amount");
-		int maxAmount = (int) itemAttributes.get("Max Users Amount");
-		switch (operationBoundary.getType()) {
-
-		case "addUser":
-			addUserToItemAttributes(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
-					itemUsersList, currAmount, maxAmount);
-			break;
-
-		case "removeUser":
-			removeUserFromItemAttributes(itemEntity, userEntity, operationAttributes, itemAttributes, itemUsersList,
-					currAmount);
-			break;
-
-		default:
-			break;
-		}
-
-		return operationBoundary;
 	}
 
 	private Object manageClassesOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
@@ -156,44 +135,37 @@ public class OperationComponent {
 
 	private Object manageFieldsOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
+		Map<String, Object> itemResevationsList;
+		int maxAmount;
+		
 		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
 		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
-		Map<String, Object> itemResevationsList = (Map<String, Object>) itemAttributes.get("usersReservations");
-
-		int currAmount = (int) itemAttributes.get("Current Users Amount");
-		int maxAmount = (int) itemAttributes.get("Max Users Amount");
-
-		if (itemResevationsList == null)
+	
+		if (operationAttributes == null)
+			throw new RuntimeException("operation attributes were not Initialized");
+		
+		if (itemAttributes == null)
+			throw new RuntimeException("Item attributes were not Initialized");
+		
+		if(!itemAttributes.containsKey("usersReservations"))
 			itemResevationsList = new HashMap<>();
+		else
+			itemResevationsList = (Map<String, Object>) itemAttributes.get("usersReservations");
+		
+		if (!itemAttributes.containsKey("Max Users Amount"))
+			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
+		else
+			maxAmount = (int) itemAttributes.get("Max Users Amount");
 
 		switch (operationBoundary.getType()) {
 
 		case "reserveField":
-			int playersAmount = (int) operationAttributes.get("playersAmount");
-
-			if (playersAmount < maxAmount) {
-				Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), playersAmount };
-				itemResevationsList.put(userEntity.getUserId(), reservationDetails);
-				itemAttributes.put("usersReservations", itemResevationsList);
-//				itemAttributes.put("Current Users Amount", currAmount + playersAmount);
-				itemEntity.setItemAttributes(this.marshall(itemAttributes));
-				this.itemHandler.save(itemEntity);
-				operationAttributes.put("Last Operation", userEntity.getUsername() + " added a field reservation");
-
-			} else
-				operationAttributes.put("Last Operation", "Reservation failed, too many players for this field");
+			addUserReservation(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
+					itemResevationsList, maxAmount);
 			break;
-			
-		case "cancelReservation":
-			if (itemResevationsList.containsKey(userEntity.getUserId())) {
-				itemResevationsList.remove(userEntity.getUserId());
-				itemAttributes.put("usersReservations", itemResevationsList);
-				itemEntity.setItemAttributes(this.marshall(itemAttributes));
-				this.itemHandler.save(itemEntity);
-				operationAttributes.put("Last Operation", userEntity.getUsername() + " reservation was canceled");
 
-			} else
-				operationAttributes.put("Last Operation", "Reservation does not exists");
+		case "cancelReservation":
+			cancelUserReservation(itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList);
 
 			break;
 
@@ -202,13 +174,91 @@ public class OperationComponent {
 
 	}
 
-	private Object managePoolOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
+	public void cancelUserReservation(ItemEntity itemEntity, UserEntity userEntity,
+			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
+			Map<String, Object> itemResevationsList) {
+
+		// checking if the reservation actually exists
+		if (itemResevationsList.containsKey(userEntity.getUserId())) {
+			itemResevationsList.remove(userEntity.getUserId());
+			itemAttributes.put("usersReservations", itemResevationsList);
+			itemEntity.setItemAttributes(this.marshall(itemAttributes));
+			this.itemHandler.save(itemEntity);
+			operationAttributes.put("Last Operation", userEntity.getUsername() + " reservation was canceled");
+
+		} else
+			operationAttributes.put("Last Operation", "Reservation does not exists");
+	}
+
+	public void addUserReservation(OperationBoundary operationBoundary, ItemEntity itemEntity, UserEntity userEntity,
+			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
+			Map<String, Object> itemResevationsList, int maxAmount) {
+		
+		int playersAmount; 
+		if (!operationAttributes.containsKey("playersAmount"))
+			throw new RuntimeException("The operation Players Amount was not Initialized or can not be zero");
+		else
+			playersAmount = (int) operationAttributes.get("playersAmount");
+
+		if (playersAmount <= maxAmount) {
+
+			/*
+			 * saving array of two objects in to the map of reservations object 1 = the
+			 * player id object 2 = a map of the reservation amount of people
+			 */
+
+			// object 2
+			Map<String, Object> reservePlayersAmount = new HashMap<>();
+			reservePlayersAmount.put("playersAmount", playersAmount);
+
+			// array of object 1 and 2
+			Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), reservePlayersAmount };
+
+			itemResevationsList.put(userEntity.getUserId(), reservationDetails);
+			itemAttributes.put("usersReservations", itemResevationsList);
+
+			// saving the new item attributes
+			itemEntity.setItemAttributes(this.marshall(itemAttributes));
+			this.itemHandler.save(itemEntity);
+
+			operationAttributes.put("Last Operation", userEntity.getUsername() + " added a field reservation");
+
+		} else
+			operationAttributes.put("Last Operation", "Reservation failed, too many players for this field");
+	}
+	
+	public Object itemAddRemoveUsers(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
+		Map<String, Object> itemUsersList;
+		int maxAmount = 0;
+		int currAmount = 0;
+		
 		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
 		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
-		Map<String, Object> itemUsersList = (Map<String, Object>) itemAttributes.get("GetUsers");
-		int currAmount = (int) itemAttributes.get("Current Users Amount");
-		int maxAmount = (int) itemAttributes.get("Max Users Amount");
+		
+		if (operationAttributes == null)
+			throw new RuntimeException("operation attributes were not Initialized");
+		
+		if (itemAttributes == null)
+			throw new RuntimeException("Item attributes were not Initialized");
+
+		// checking the item has users that are using it
+		if(itemAttributes.containsKey("GetUsers"))
+			itemUsersList = (Map<String, Object>) itemAttributes.get("GetUsers");
+		else
+			itemUsersList = new HashMap<>();
+
+		
+		if (!itemAttributes.containsKey("Max Users Amount"))
+			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
+		else
+			maxAmount = (int) itemAttributes.get("Max Users Amount");
+
+		if (!itemAttributes.containsKey("Current Users Amount"))
+			throw new RuntimeException("Item Current Users Amount was not Initialized");
+		else
+			currAmount = (int) itemAttributes.get("Current Users Amount");
+
 		switch (operationBoundary.getType()) {
 
 		case "addUser":
@@ -226,9 +276,8 @@ public class OperationComponent {
 		}
 
 		return operationBoundary;
-		
-
 	}
+
 
 	private void removeUserFromItemAttributes(ItemEntity itemEntity, UserEntity userEntity,
 			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
@@ -256,11 +305,8 @@ public class OperationComponent {
 	private void addUserToItemAttributes(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity, Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
 			Map<String, Object> itemUsersList, int currAmount, int maxAmount) {
-		// checking the saouna has users that are using it
-		if (itemUsersList == null)
-			itemUsersList = new HashMap<>();
-
-		// checking the sauna has not reached it's full capacity
+		
+		// checking the item has not reached it's full capacity
 		if (currAmount < maxAmount) {
 
 			// adding user to the sauna and saving the new users list
