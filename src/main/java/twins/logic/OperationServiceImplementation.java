@@ -111,6 +111,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 			if( userOptinoal.isPresent()) { 
 				UserEntity ue = userOptinoal.get();
 				System.err.println("is active: "+ie.isActive() + " userRole: " + ue.getRole());
+				System.err.println("check");
 				if(ie.isActive() == true && ue.getRole().equals("PLAYER")) {
 					//oe = this.operationHandler.save(oe);
 					OperationBoundary updatedOperation= (OperationBoundary) this.operationComponent.switchCase(operation);
