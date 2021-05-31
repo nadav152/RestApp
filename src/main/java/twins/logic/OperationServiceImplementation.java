@@ -29,6 +29,7 @@ import twins.dal.UserHandler;
 import twins.data.ItemEntity;
 import twins.data.OperationEntity;
 import twins.data.UserEntity;
+import twins.data.UserRole;
 import twins.additionalClasses.Item;
 import twins.additionalClasses.ItemId;
 
@@ -109,8 +110,8 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		
 			if( userOptinoal.isPresent()) { 
 				UserEntity ue = userOptinoal.get();
-				
-				if(ie.isActive() == true && ue.getRole() == "PLAYER") {
+				System.err.println("is active: "+ie.isActive() + " userRole: " + ue.getRole());
+				if(ie.isActive() == true && ue.getRole().equals("PLAYER")) {
 					//oe = this.operationHandler.save(oe);
 					OperationBoundary updatedOperation= (OperationBoundary) this.operationComponent.switchCase(operation);
 					OperationEntity oe = this.operationHandler.save(this.convertToEntity(updatedOperation));
@@ -197,7 +198,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		List<OperationBoundary> rv = new ArrayList<>();
 		if(userOptional.isPresent()) {
 			UserEntity ue = userOptional.get();
-			if(ue.getRole() == "ADMIN") {
+			if(ue.getRole().equals("ADMIN")) {
 				List<OperationEntity> pagedEntities = entitiesPage.getContent();
 				
 				for (OperationEntity operation : pagedEntities) {
@@ -221,7 +222,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		Optional<UserEntity> userOptional = this.userHandler.findById(adminSpace+ "|" +adminEmail);
 		if(userOptional.isPresent()) {
 			UserEntity ue = userOptional.get();
-			if(ue.getRole() == "ADMIN") 
+			if(ue.getRole().equals("ADMIN")) 
 				this.operationHandler.deleteAll();
 			else
 				throw new RuntimeException("User must be admin in order to delete operations\n");
