@@ -117,16 +117,49 @@ public class OperationComponent {
 
 	private Object manageClassesOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
+		
+		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
+		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
+		int currAmount = 0;
+		int maxAmount = 0;
+		if (operationAttributes == null)
+			throw new RuntimeException("operation attributes were not Initialized");
+		
+		if (itemAttributes == null)
+			throw new RuntimeException("Item attributes were not Initialized");
+		if (!itemAttributes.containsKey("Max Users Amount"))
+			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
+		else
+			maxAmount = (int) itemAttributes.get("Max Users Amount");
+		currAmount = (int)itemAttributes.get("Current Users Amount");
 		switch (operationBoundary.getType()) {
 
 		case "addUser":
 			/*
 			 * adding user to item attributes +1 to the item capacity counter and adding the
 			 * user from the operation attributes to the item array of users.
+			 * TODO
 			 */
+			if (currAmount < maxAmount) {
 
+				// adding users to the gym and saving the new users list
+								
+				itemAttributes.put("Current Users Amount", currAmount + 1);
+				itemAttributes.put("member"+ (currAmount+1), userEntity.getUserId());
+				
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				this.itemHandler.save(itemEntity);
+
+				operationAttributes.put("Last Operation", "New user add to " + itemEntity.getType());
+
+			} else {
+				operationAttributes.put("Last Operation", itemEntity.getType() + " has reached it's full capacity");
+			}
 			break;
-
+		
+		case "removeUser":
+			
+			break;
 		default:
 			break;
 		}

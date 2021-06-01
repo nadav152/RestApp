@@ -47,7 +47,7 @@ public class ItemController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		
-		ItemBoundary itemboundary = this.itemsService.createItem(userSpace, userEmail, IDlessItem);
+		ItemBoundary itemboundary = this.itemsService.createItem(userSpace, userEmail, IDlessItem,0);
 		return itemboundary;
 	}
 	
