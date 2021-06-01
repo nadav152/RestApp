@@ -29,7 +29,7 @@ import twins.dal.UserHandler;
 import twins.data.ItemEntity;
 import twins.data.OperationEntity;
 import twins.data.UserEntity;
-import twins.data.UserRole;
+
 import twins.additionalClasses.Item;
 import twins.additionalClasses.ItemId;
 
@@ -153,7 +153,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 			if(itemOptional.isPresent() && userOptional.isPresent()) {
 				ItemEntity ie = itemOptional.get();
 				UserEntity ue = userOptional.get();
-				if(ie.isActive() == true && ue.getRole() == "PLAYER") { 
+				if(ie.isActive() == true && ue.getRole().equals("PLAYER")) { 
 					String json = this.jackson.writeValueAsString(operation);
 					this.jmsTemplate.send("OperationsDestination", session -> session.createTextMessage(json));
 				}
