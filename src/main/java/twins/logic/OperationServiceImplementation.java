@@ -82,7 +82,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	// have spring invoke this operation after initializing Spring bean
 	@PostConstruct
 	public void init() {
-		System.err.println("space: " + this.space);
+	
 	}
 
 	//return JSON obj, after creating new id and updating time stamp
@@ -102,7 +102,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 
 		operation.setCreatedTimestamp(new Date());
 		operation.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));
-		//OperationEntity oe = this.convertToEntity(operation);
 		Optional<ItemEntity> itemOptional = this.itemHandler.findById(this.marshall(new ItemId(operation.getItem().getItemId().getSpace(),operation.getItem().getItemId().getID())));
 		if(itemOptional.isPresent()) {
 			ItemEntity ie = itemOptional.get();
@@ -111,7 +110,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 			if( userOptinoal.isPresent()) { 
 				UserEntity ue = userOptinoal.get();
 				if(ie.isActive() == true && ue.getRole().equals("PLAYER")) {
-					//oe = this.operationHandler.save(oe);
 					OperationBoundary updatedOperation= (OperationBoundary) this.operationComponent.switchCase(operation);
 					OperationEntity oe = this.operationHandler.save(this.convertToEntity(updatedOperation));
 					return this.convertToBoundary(oe);
@@ -127,8 +125,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 		}
 		else 
 			throw new RuntimeException("item must not be null\n");
-		//Object rv = this.operationComponent.switchCase(operation);
-		//return rv;
 	}
 
 
@@ -160,7 +156,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 				if(ie.isActive() == true && ue.getRole() == "PLAYER") { 
 					String json = this.jackson.writeValueAsString(operation);
 					this.jmsTemplate.send("OperationsDestination", session -> session.createTextMessage(json));
-					//oe = this.operationHandler.save(oe);
 				}
 				else 
 					throw new RuntimeException("Item must be active and UserRole must be Player\n");
@@ -179,13 +174,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	@Transactional (readOnly = true)
 	@Deprecated
 	public List<OperationBoundary> getAllOperations(String adminSpace, String adminEmail) {
-		//		Iterable<OperationEntity> allEntities = this.operationHandler.findAll();
-		//		List<OperationBoundary> operationBoundaries = new ArrayList<>(); 
-		//		for (OperationEntity operation : allEntities) {
-		//			operationBoundaries.add(this.convertToBoundary(operation));
-		//		}
-		//		//TODO check about permissions 
-		//		return operationBoundaries;
 		throw new RuntimeException("depracted method\n");
 	}
 	@Override
@@ -227,21 +215,7 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 				throw new RuntimeException("User must be admin in order to delete operations\n");
 		}			
 	}
-	/* no need to use this method -> 
-	 * 				if async is invoked the implementation must be from jms listener*/
-	/*@Override
-	@Transactional
-	public OperationBoundary doSomething(OperationBoundary ob) {
-		if(ob.getOperationId().getId() == null)
-			ob.setOperationId(new OperationId(this.space,UUID.randomUUID().toString()));;
-		
-		System.err.println("before save\n");
-		//new oper
-		OperationEntity entity = this.operationHandler.save(this.convertToEntity(ob));
-		System.err.println("after save\n");
-		return this.convertToBoundary(entity);
-	}*/
-
+	
 	//convert entity-> boundary
 	private OperationBoundary convertToBoundary(OperationEntity oe) {
 		OperationBoundary ob = new OperationBoundary();
@@ -294,7 +268,6 @@ public class OperationServiceImplementation implements ExtendedOperationsService
 	private String[] getTokens(String userID) {
 		String[] tokens = new String[2];
 		tokens = userID.split("\\|");
-		//System.err.println(tokens[0] + " " + tokens[1] + "I'm here");
 		return tokens;
 	}
 

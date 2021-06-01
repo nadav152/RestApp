@@ -38,7 +38,7 @@ public class UserServiceImplementation implements ExtendedUsersService {
 	
 	@PostConstruct
 	public void init() {
-		System.err.println("space: " + this.space);
+		
 	}
 	
 	@Override
@@ -97,17 +97,12 @@ public class UserServiceImplementation implements ExtendedUsersService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<UserBoundary> getAllUsers(String adminSpace, String adminEmail, int size, int page) {
-		String UserId = adminSpace+"|"+adminEmail;
 		Page<UserEntity> entitiesPage = this.userHandler.findAll(PageRequest.of(page, size, Direction.DESC, "UserId"));
-		System.err.println("******************** " + adminSpace +" 1 "+ adminEmail);
 		List<UserEntity> content = entitiesPage.getContent(); 
 		List<UserBoundary> boundaries = new ArrayList<>();
-		System.err.println("******************** " + adminSpace +" 2 "+ adminEmail);
 		Optional<UserEntity> oue = this.userHandler.findById(adminSpace + "|" + adminEmail);
-		System.err.println("******************** " + oue.isPresent() +" "+ adminSpace +" "+ adminEmail);
 		if (oue.isPresent()) {							// Check if user exists
-			System.err.println("******************** " + oue.get().getRole() + " ********************");
-			if (oue.get().getRole() == "ADMIN") {	// Check for admin permissions
+			if (oue.get().getRole().equals("ADMIN")) {	// Check for admin permissions
 				for (UserEntity entity : content) 
 					boundaries.add(this.convertToBoundary(entity));
 			}

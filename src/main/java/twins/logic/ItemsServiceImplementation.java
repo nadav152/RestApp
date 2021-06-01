@@ -61,30 +61,6 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	@Override
 	@Deprecated
 	public ItemBoundary createItem(String userSpace, String userEmail, ItemBoundary item) {
-		/*
-		// 1. validate input - make sure Item is not null
-		if (item == null || item.getType() == null)
-			throw new RuntimeException("Item and item type must not be null");
-
-		if (item.getName() == null || item.getName().equals(""))
-			throw new RuntimeException("Item name must not be null or empty");
-
-		if (!checkUserRole(new UserId(userSpace, userEmail), "MANAGER"))
-			throw new RuntimeException("User is not Manager");
-
-		item.setCreatedBy(new UserId(userSpace, userEmail));
-		item.setItemID(new ItemId(this.space, UUID.randomUUID().toString()));
-		item.setCreatedTimestamp(new Date());
-
-		// 2. boundary -> entity
-		ItemEntity entity = this.convertToEntity(item);
-
-		// 3. INSERT to database
-		entity = this.itemHandler.save(entity);
-
-		// 4. entity -> boundary
-		return this.convertToBoundary(entity);
-		*/
 		throw new RuntimeException("depracted method\n");
 	}
 	@Override
@@ -173,14 +149,7 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 	@Override
 	@Transactional(readOnly = true) // handle race condition
 	public List<ItemBoundary> getAllItems(String userSpace, String userEmail) {
-		/*// BEGIN new tx (transaction)
-		Iterable<ItemEntity> allEntities = this.itemHandler.findAll();
-
-		List<ItemBoundary> rv = new ArrayList<>();
-		for (ItemEntity entity : allEntities) {
-			ItemBoundary boundary = this.convertToBoundary(entity);
-			rv.add(boundary);
-		}*/
+		
 		throw new RuntimeException("depracted method\n");
 	}
 
