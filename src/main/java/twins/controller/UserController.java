@@ -66,7 +66,6 @@ public class UserController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		this.usersService.updateUser(userSpace, userEmail, ub);
-		System.err.println("The user from space " + userSpace + " has been updated by " + userEmail);
 	}	
 	
 	/* Admin API */
@@ -77,7 +76,6 @@ public class UserController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		this.usersService.deleteAllUsers(userSpace, userEmail);
-		System.err.println("All users from space " + userSpace + " have been deleted by " + userEmail);
 	}
 	
 	@RequestMapping(

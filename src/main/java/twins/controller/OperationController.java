@@ -59,7 +59,6 @@ public class OperationController {
 			@PathVariable("userSpace") String userSpace,
 			@PathVariable("userEmail") String userEmail){
 		this.operationsService.deleteAllOperations(userSpace, userEmail);
-		System.err.println("All Operations from space " + userSpace + " have been deleted by " + userEmail);
 	}
 	
 	@RequestMapping(

@@ -49,7 +49,6 @@ public class OperationTests {
 	public void init() {
 		this.url = "http://localhost:" + this.port + "/twins/operations";
 		this.adminUrl = "http://localhost:" + this.port +"/twins/admin/operations/{userSpace}/{userEmail}"; 
-		System.err.println(this.url);
 		this.restTemplate = new RestTemplate();
 	}
 	

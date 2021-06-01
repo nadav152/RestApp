@@ -39,17 +39,6 @@ public class OperationBoundary {
 		this.operationAttributes.putAll(ob.getOperationAttributes());
 	}
 	
-	//check if this constructor is needed 
-	/*public OperationBoundary(OperationEntity oe) {
-		this();
-		this.operationId = oe.getOperationId();
-		this.type = oe.getType();
-		this.item = oe.getItem();
-		this.invokedBy = oe.getInvokedBy();
-		this.createdTimestamp = oe.getCreatedTimestamp();
-		this.operationAttributes.putAll(oe.getOperationAttributes());
-	}*/
-
 	public OperationId getOperationId() {
 		return operationId;
 	}

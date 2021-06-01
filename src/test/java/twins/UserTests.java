@@ -39,7 +39,6 @@ public class UserTests {
 	@PostConstruct
 	public void init() {
 		this.url = "http://localhost:" + this.port + "/twins/users";
-		System.err.println(this.url);
 		this.restTemplate = new RestTemplate();
 	}
 	
@@ -63,7 +62,6 @@ public class UserTests {
 		
 		assertThat(response.getAvatar())
 			.isEqualTo("cb");
-		System.err.println("***"+response);
 	}
 	
 	@Test 
@@ -84,7 +82,6 @@ public class UserTests {
 		update.setRole("PLAYER");
 		update.setUserName("cowboy11");
 		update.setAvatar("cbn");
-		System.out.println(response.getUserId().getSpace() + " " + response.getUserId().getEmail());
 		
 		this.restTemplate
 			.put(this.url + "/{userSpace}/{userEmail}", update, response.getUserId().getSpace(), response.getUserId().getEmail());

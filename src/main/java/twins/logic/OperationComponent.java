@@ -1,11 +1,7 @@
 package twins.logic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +10,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import twins.additionalClasses.ItemId;
-import twins.boundaries.ItemBoundary;
 import twins.boundaries.OperationBoundary;
 import twins.dal.ItemHandler;
 import twins.dal.OperationHandler;
@@ -24,7 +19,6 @@ import twins.data.UserEntity;
 
 @Component
 public class OperationComponent {
-	private OperationHandler operationHandler;
 	private ItemHandler itemHandler;
 	private UserHandler userHandler;
 	private ObjectMapper jackson;
@@ -32,14 +26,8 @@ public class OperationComponent {
 	@Autowired
 	public OperationComponent(OperationHandler operationHandler) {
 		super();
-		this.operationHandler = operationHandler;
 		this.jackson = new ObjectMapper();
-	}
-
-//	@Autowired
-//	public void setItemService(ExtendedItemsService itemsService) {
-//		this.itemsService = itemsService;
-//	}	
+	}	
 
 	@Autowired
 	public void setItemHandler(ItemHandler itemHandler) {
@@ -51,25 +39,6 @@ public class OperationComponent {
 		this.userHandler = userHandler;
 	}
 
-//add json for attributes -> use get to get values
-	/*
-	 * TODO i have stated the class according to what Eyal said in the class, i'm
-	 * sending operation boundary from the operations service implementation. i
-	 * based this idea on
-	 * https://drive.google.com/file/d/1iirTcReIADWD7sS0AhNBPrkMZxgYJakA/view what i
-	 * tried to start: first you get from the operation boundary the item type so
-	 * you can know what method to invoke (inside this class) then you need to check
-	 * the type to know what case to enter -> this is where i stopped
-	 * --------------------- what i think you should try is to get inside each
-	 * method in the item entity the map of the attributes to check -> for example
-	 * the max capacity for this attraction and i also thought that the list of user
-	 * being added to this activity is based in operations attributes map -> for
-	 * easier work we decide that there can be only 2 types of users inside the map:
-	 * 1) Instructor - User with UserRole = "MANAGER" (only 1 for each activity) 2)
-	 * member - User with UserRole = "PLAYER" (2-3 just so we'll have what to work
-	 * with) also the last thing Eyal added (Message initializer might make it
-	 * easier - look for the profile in the properties)
-	 */
 	public Object switchCase(OperationBoundary operationBoundary) {
 
 		Optional<ItemEntity> itemOptional = this.itemHandler
@@ -103,7 +72,6 @@ public class OperationComponent {
 		} else
 			throw new RuntimeException("");
 
-		System.err.println("before return");
 		return operationBoundary;
 	}
 
@@ -166,10 +134,7 @@ public class OperationComponent {
 			
 				itemAttributes.remove("member: "+operationBoundary.getInvokedBy().getUserId().getEmail());
 				itemAttributes.put("Current Users Amount", currAmount - 1);
-				System.err.println("after foreach" +itemAttributes.toString());
-				System.err.println("before set: " + itemEntity.getItemAttributes().toString());
 				itemEntity.setItemAttributes(this.marshall(itemAttributes));
-				System.err.println("after set: " + itemEntity.getItemAttributes().toString());
 				this.itemHandler.save(itemEntity);
 				operationAttributes.put("Last Operation", "User was removed from " + itemEntity.getType());
 

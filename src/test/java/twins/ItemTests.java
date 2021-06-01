@@ -40,7 +40,6 @@ public class ItemTests {
 	@PostConstruct
 	public void init() {
 		this.url = "http://localhost:" + this.port + "/twins";
-		System.err.println(this.url);
 		this.restTemplate = new RestTemplate();
 	}
 
