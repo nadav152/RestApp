@@ -207,8 +207,8 @@ public class OperationComponent {
 		else
 			maxAmount = Integer.parseInt(itemAttributes.get("Max Users Amount").toString());
 
-		if(itemAttributes.containsKey("Reserve Fully"))
-			flag = (boolean) itemAttributes.get("Reserve Fully");
+		if(itemAttributes.containsKey("Reserved Fully"))
+			flag = (boolean) itemAttributes.get("Reserved Fully");
 		switch (operationBoundary.getType()) {
 
 		case "reserveField":
@@ -227,14 +227,14 @@ public class OperationComponent {
 		case "reserveCourt":
 			if(!flag) {
 				flag= true;
-				itemAttributes.put("Reserve Fully", true);
+				itemAttributes.put("Reserved Fully", true);
 				addUserReservation(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList, maxAmount);				
 			}
 			else
 				operationAttributes.put("Last Operation", "Reservation failed, field is fully reserved");
 			break;
-		case "cancelCourtResrvation":
-			itemAttributes.put("Reserve Fully", false);
+		case "cancelCourtReservation":
+			itemAttributes.put("Reserved Fully", false);
 			cancelUserReservation(itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList);
 			flag = false;
 		}
