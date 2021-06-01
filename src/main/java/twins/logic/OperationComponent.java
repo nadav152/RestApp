@@ -179,10 +179,17 @@ public class OperationComponent {
 			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
 			Map<String, Object> itemResevationsList) {
 
+		int playersAmount,currAmount;
+		if (!operationAttributes.containsKey("playersAmount"))
+			throw new RuntimeException("The operation Players Amount was not Initialized or can not be zero");
+		else
+			playersAmount = (int) operationAttributes.get("playersAmount");
+		currAmount = (int)itemAttributes.get("Current Users Amount");
 		// checking if the reservation actually exists
 		if (itemResevationsList.containsKey(userEntity.getUserId())) {
 			itemResevationsList.remove(userEntity.getUserId());
 			itemAttributes.put("usersReservations", itemResevationsList);
+			itemAttributes.put("Current Users Amount", currAmount - playersAmount);
 			itemEntity.setItemAttributes(this.marshall(itemAttributes));
 			this.itemHandler.save(itemEntity);
 			operationAttributes.put("Last Operation", userEntity.getUsername() + " reservation was canceled");
@@ -195,13 +202,14 @@ public class OperationComponent {
 			Map<String, Object> operationAttributes, Map<String, Object> itemAttributes,
 			Map<String, Object> itemResevationsList, int maxAmount) {
 		
-		int playersAmount; 
+		int playersAmount,currAmount; 
 		if (!operationAttributes.containsKey("playersAmount"))
 			throw new RuntimeException("The operation Players Amount was not Initialized or can not be zero");
 		else
 			playersAmount = (int) operationAttributes.get("playersAmount");
-
-		if (playersAmount <= maxAmount) {
+		
+		currAmount = (int)itemAttributes.get("Current Users Amount");
+		if (currAmount+playersAmount <= maxAmount) {
 
 			/*
 			 * saving array of two objects in to the map of reservations object 1 = the
@@ -211,7 +219,7 @@ public class OperationComponent {
 			// object 2
 			Map<String, Object> reservePlayersAmount = new HashMap<>();
 			reservePlayersAmount.put("playersAmount", playersAmount);
-
+			itemAttributes.put("Current Users Amount", currAmount + playersAmount);
 			// array of object 1 and 2
 			Object[] reservationDetails = { operationBoundary.getInvokedBy().getUserId(), reservePlayersAmount };
 
