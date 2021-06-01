@@ -140,8 +140,7 @@ public class OperationComponent {
 		case "addUser":
 			/*
 			 * adding user to item attributes +1 to the item capacity counter and adding the
-			 * user from the operation attributes to the item array of users.
-			 * TODO
+			 * user from the operation attributes to the item array of users. 
 			 */
 			if (currAmount < maxAmount) {
 
@@ -161,25 +160,10 @@ public class OperationComponent {
 			break;
 		
 		case "removeUser":
-			int i=0;
+			
 			if (currAmount > 0 && itemAttributes.containsValue(userEntity.getUserId())) {
 				// saving the updated users list after the user remove
-				
-				/*for (Iterator<Map.Entry<String, Object>> it  = itemAttributes.entrySet().iterator(); it.hasNext();) {
-					Map.Entry<String, Object> entry = it.next();
-					//if(Objects.equals(userEntity.getUserId(), entry))
-					if(entry.getValue().equals(userEntity.getUserId())){
-						System.err.println("entry.getKey = "+entry.getKey() +" entry.value = "+entry.getValue()+" userId = " +userEntity.getUserId());
-						it.remove();
-						//System.err.println(itemAttributes.toString());
-					}
-					else {
-						System.err.println("entry.getKey = " + entry.getKey() + " entry.getValue = " + entry.getValue());
-						itemAttributes.put(entry.getKey(), entry.getValue());
-					}
-					System.err.println(itemAttributes.toString()+" objects.equals= "+Objects.equals(userEntity.getUserId(), entry.getValue()));
-					System.err.println("inside loop"+" "+ (++i));
-				}*/
+			
 				itemAttributes.remove("member: "+operationBoundary.getInvokedBy().getUserId().getEmail());
 				itemAttributes.put("Current Users Amount", currAmount - 1);
 				System.err.println("after foreach" +itemAttributes.toString());
@@ -221,7 +205,7 @@ public class OperationComponent {
 		if (!itemAttributes.containsKey("Max Users Amount"))
 			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
 		else
-			maxAmount = (int) itemAttributes.get("Max Users Amount");
+			maxAmount = Integer.parseInt(itemAttributes.get("Max Users Amount").toString());
 
 		if(itemAttributes.containsKey("Reserve Fully"))
 			flag = (boolean) itemAttributes.get("Reserve Fully");
@@ -266,8 +250,8 @@ public class OperationComponent {
 		if (!operationAttributes.containsKey("playersAmount"))
 			throw new RuntimeException("The operation Players Amount was not Initialized or can not be zero");
 		else
-			playersAmount = (int) operationAttributes.get("playersAmount");
-		currAmount = (int)itemAttributes.get("Current Users Amount");
+			playersAmount = Integer.parseInt(operationAttributes.get("playersAmount").toString());
+		currAmount = Integer.parseInt(itemAttributes.get("Current Users Amount").toString());
 		// checking if the reservation actually exists
 		if (itemResevationsList.containsKey(userEntity.getUserId())) {
 			itemResevationsList.remove(userEntity.getUserId());
