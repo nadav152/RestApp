@@ -2,7 +2,10 @@ package twins.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,8 +133,8 @@ public class OperationComponent {
 		if (!itemAttributes.containsKey("Max Users Amount"))
 			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
 		else
-			maxAmount = (int) itemAttributes.get("Max Users Amount");
-		currAmount = (int)itemAttributes.get("Current Users Amount");
+			maxAmount = Integer.parseInt(itemAttributes.get("Max Users Amount").toString());
+		currAmount =  Integer.parseInt(itemAttributes.get("Current Users Amount").toString());
 		switch (operationBoundary.getType()) {
 
 		case "addUser":
@@ -145,7 +148,7 @@ public class OperationComponent {
 				// adding users to the gym and saving the new users list
 								
 				itemAttributes.put("Current Users Amount", currAmount + 1);
-				itemAttributes.put("member"+ (currAmount+1), userEntity.getUserId());
+				itemAttributes.put("member: "+ operationBoundary.getInvokedBy().getUserId().getEmail(), userEntity.getUserId());
 				
 				itemEntity.setItemAttributes(this.marshall(itemAttributes));
 				this.itemHandler.save(itemEntity);
@@ -158,7 +161,34 @@ public class OperationComponent {
 			break;
 		
 		case "removeUser":
-			
+			int i=0;
+			if (currAmount > 0 && itemAttributes.containsValue(userEntity.getUserId())) {
+				// saving the updated users list after the user remove
+				for (Iterator<Map.Entry<String, Object>> it  = itemAttributes.entrySet().iterator(); it.hasNext();) {
+					Map.Entry<String, Object> entry = it.next();
+					//if(Objects.equals(userEntity.getUserId(), entry))
+					if(entry.getValue().equals(userEntity.getUserId())){
+						System.err.println("entry.getKey = "+entry.getKey() +" entry.value = "+entry.getValue()+" userId = " +userEntity.getUserId());
+						it.remove();
+						//System.err.println(itemAttributes.toString());
+					}
+					/*else {
+						System.err.println("entry.getKey = " + entry.getKey() + " entry.getValue = " + entry.getValue());
+						itemAttributes.put(entry.getKey(), entry.getValue());
+					}*/
+					System.err.println(itemAttributes.toString()+" objects.equals= "+Objects.equals(userEntity.getUserId(), entry.getValue()));
+					System.err.println("inside loop"+" "+ (++i));
+				}
+				itemAttributes.put("Current Users Amount", currAmount - 1);
+				System.err.println("after foreach" +itemAttributes.toString());
+				System.err.println("before set: " + itemEntity.getItemAttributes().toString());
+				itemEntity.setItemAttributes(this.marshall(itemAttributes));
+				System.err.println("after set: " + itemEntity.getItemAttributes().toString());
+				this.itemHandler.save(itemEntity);
+				operationAttributes.put("Last Operation", "User was removed from " + itemEntity.getType());
+
+			} else
+				operationAttributes.put("Last Operation", "User could not be removed");
 			break;
 		default:
 			break;
@@ -239,9 +269,9 @@ public class OperationComponent {
 		if (!operationAttributes.containsKey("playersAmount"))
 			throw new RuntimeException("The operation Players Amount was not Initialized or can not be zero");
 		else
-			playersAmount = (int) operationAttributes.get("playersAmount");
+			playersAmount =  Integer.parseInt(operationAttributes.get("playersAmount").toString());
 		
-		currAmount = (int)itemAttributes.get("Current Users Amount");
+		currAmount =  Integer.parseInt(itemAttributes.get("Current Users Amount").toString());
 		if (currAmount+playersAmount <= maxAmount) {
 
 			/*
@@ -294,12 +324,12 @@ public class OperationComponent {
 		if (!itemAttributes.containsKey("Max Users Amount"))
 			throw new RuntimeException("Item Max Users Amount was not Initialized or can not be zero");
 		else
-			maxAmount = (int) itemAttributes.get("Max Users Amount");
+			maxAmount =  Integer.parseInt(itemAttributes.get("Max Users Amount").toString());
 
 		if (!itemAttributes.containsKey("Current Users Amount"))
 			throw new RuntimeException("Item Current Users Amount was not Initialized");
 		else
-			currAmount = (int) itemAttributes.get("Current Users Amount");
+			currAmount =  Integer.parseInt(itemAttributes.get("Current Users Amount").toString());
 
 		switch (operationBoundary.getType()) {
 
