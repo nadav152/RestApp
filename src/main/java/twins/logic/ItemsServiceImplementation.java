@@ -99,7 +99,6 @@ public class ItemsServiceImplementation implements ExtendedItemsService {
 
 		if (!checkUserRole(new UserId(userSpace, userEmail), "MANAGER"))
 			throw new RuntimeException("User is not Manager");
-
 		item.setCreatedBy(new UserId(userSpace, userEmail));
 		item.setItemID(new ItemId(this.space, UUID.randomUUID().toString()));
 		item.setCreatedTimestamp(new Date());

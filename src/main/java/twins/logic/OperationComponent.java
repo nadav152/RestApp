@@ -90,7 +90,7 @@ public class OperationComponent {
 				return manageFieldsOperations(operationBoundary, itemEntity, userEntity);
 
 			case "gym":
-				return manageClassesOperations(operationBoundary, itemEntity, userEntity);
+				return manageGymOperations(operationBoundary, itemEntity, userEntity);
 
 			case "sauna":
 				return manageSaunaOperations(operationBoundary, itemEntity, userEntity);
@@ -118,7 +118,7 @@ public class OperationComponent {
 
 	}
 
-	private Object manageClassesOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
+	private Object manageGymOperations(OperationBoundary operationBoundary, ItemEntity itemEntity,
 			UserEntity userEntity) {
 		
 		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
@@ -164,7 +164,8 @@ public class OperationComponent {
 			int i=0;
 			if (currAmount > 0 && itemAttributes.containsValue(userEntity.getUserId())) {
 				// saving the updated users list after the user remove
-				for (Iterator<Map.Entry<String, Object>> it  = itemAttributes.entrySet().iterator(); it.hasNext();) {
+				
+				/*for (Iterator<Map.Entry<String, Object>> it  = itemAttributes.entrySet().iterator(); it.hasNext();) {
 					Map.Entry<String, Object> entry = it.next();
 					//if(Objects.equals(userEntity.getUserId(), entry))
 					if(entry.getValue().equals(userEntity.getUserId())){
@@ -172,13 +173,14 @@ public class OperationComponent {
 						it.remove();
 						//System.err.println(itemAttributes.toString());
 					}
-					/*else {
+					else {
 						System.err.println("entry.getKey = " + entry.getKey() + " entry.getValue = " + entry.getValue());
 						itemAttributes.put(entry.getKey(), entry.getValue());
-					}*/
+					}
 					System.err.println(itemAttributes.toString()+" objects.equals= "+Objects.equals(userEntity.getUserId(), entry.getValue()));
 					System.err.println("inside loop"+" "+ (++i));
-				}
+				}*/
+				itemAttributes.remove("member: "+operationBoundary.getInvokedBy().getUserId().getEmail());
 				itemAttributes.put("Current Users Amount", currAmount - 1);
 				System.err.println("after foreach" +itemAttributes.toString());
 				System.err.println("before set: " + itemEntity.getItemAttributes().toString());
@@ -201,7 +203,7 @@ public class OperationComponent {
 			UserEntity userEntity) {
 		Map<String, Object> itemResevationsList;
 		int maxAmount;
-		
+		boolean flag = false;
 		Map<String, Object> operationAttributes = operationBoundary.getOperationAttributes();
 		Map<String, Object> itemAttributes = unmarshall(itemEntity.getItemAttributes(), HashMap.class);
 	
@@ -221,18 +223,36 @@ public class OperationComponent {
 		else
 			maxAmount = (int) itemAttributes.get("Max Users Amount");
 
+		if(itemAttributes.containsKey("Reserve Fully"))
+			flag = (boolean) itemAttributes.get("Reserve Fully");
 		switch (operationBoundary.getType()) {
 
 		case "reserveField":
-			addUserReservation(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
+			if(!flag)
+				addUserReservation(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes,
 					itemResevationsList, maxAmount);
+			else
+				operationAttributes.put("Last Operation", "Reservation failed, field is fully reserved");
 			break;
 
 		case "cancelReservation":
+			
 			cancelUserReservation(itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList);
 
 			break;
-
+		case "reserveCourt":
+			if(!flag) {
+				flag= true;
+				itemAttributes.put("Reserve Fully", true);
+				addUserReservation(operationBoundary, itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList, maxAmount);				
+			}
+			else
+				operationAttributes.put("Last Operation", "Reservation failed, field is fully reserved");
+			break;
+		case "cancelCourtResrvation":
+			itemAttributes.put("Reserve Fully", false);
+			cancelUserReservation(itemEntity, userEntity, operationAttributes, itemAttributes, itemResevationsList);
+			flag = false;
 		}
 		return operationBoundary;
 
@@ -288,7 +308,7 @@ public class OperationComponent {
 
 			itemResevationsList.put(userEntity.getUserId(), reservationDetails);
 			itemAttributes.put("usersReservations", itemResevationsList);
-
+			
 			// saving the new item attributes
 			itemEntity.setItemAttributes(this.marshall(itemAttributes));
 			this.itemHandler.save(itemEntity);

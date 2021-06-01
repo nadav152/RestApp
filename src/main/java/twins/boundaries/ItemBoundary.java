@@ -32,7 +32,7 @@ public class ItemBoundary {
 		this.name = name;
 		this.active = active;
 		this.createdBy = createdBy;
-		this.location = location;
+		this.location = new Location(location.getLat(),location.getLng());
 	}
 	
 	public ItemBoundary(String type, String name, boolean active, UserId createdBy, Location location) {
@@ -42,7 +42,7 @@ public class ItemBoundary {
 		this.name = name;
 		this.active = active;
 		this.createdBy = createdBy;
-		this.location = location;
+		this.location = new Location(location.getLat(),location.getLng());
 	}
 	
 	public ItemId getItemID() {
